@@ -6,6 +6,7 @@ var arduino = require('./js/arduino.js');
   var yellow = 'background-color: yellow';
   var grey = 'background-color: grey';
   var currentSession;
+  var BOARD = false;
   Polymer({
     is: 'afm-controls',
     properties: {
@@ -40,7 +41,8 @@ var arduino = require('./js/arduino.js');
         console.log('button = connect');
         arduino.findBoard(function(board) {
           console.log(board);
-          if (board === true) {
+          BOARD = board;
+          if (BOARD === true) {
             console.log('still true');
             this.searchButton = 'CONNECTED';
             this.serButSty = green;
@@ -62,7 +64,7 @@ var arduino = require('./js/arduino.js');
     },
 
     scanPressed: function() {
-      if (board !== false) {
+      if (BOARD === true) {
 
         if (this.scanButton == 'SCAN') {
           //start recording
