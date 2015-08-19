@@ -1,0 +1,19 @@
+<dom-module id="afm-controls">
+
+  <style>
+    #my-button {
+      color: black;
+    }
+  </style>
+
+  <template>
+    <h2 class="paper-font-display2">AFM Controls</h2>
+    <paper-button id='my-button' on-click="searchPressed" style$="{{serButSty}}">{{searchButton}}</paper-button>
+    <paper-button id='my-button' on-click="scanPressed" style$="{{scaButSty}}">{{scanButton}}</paper-button>
+  </template>
+
+  <script src="../js/controls.js"></script> 
+
+</dom-module>
+  
+

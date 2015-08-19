@@ -1,11 +1,90 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+
   <head>
-    <title>Hello World!</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <script src="modules/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="elements/elements.html">
   </head>
-  <body>
-    <h1>Hello World!</h1>
-    We are using io.js <script>document.write(process.version)</script>
-    and Electron <script>document.write(process.versions['electron'])</script>.
+
+  <body unresolved class="fullbleed layout vertical">
+    <span id="browser-sync-binding"></span>
+    <template is="dom-bind" id="app">
+      <paper-drawer-panel id="paperDrawerPanel">
+
+        <!-- Drawer Scroll Header Panel -->
+        <paper-scroll-header-panel drawer fixed>
+
+          <!-- Drawer Toolbar -->
+          <paper-toolbar id="drawerToolbar">
+            <span class="paper-font-title">Menu</span>
+          </paper-toolbar>
+
+          <!-- Drawer Content -->
+          <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
+            <a data-route="home" href="/">
+              <iron-icon icon="home"></iron-icon>
+              <span>Home</span>
+            </a>
+
+            <a data-route="graph" href="/graph">
+              <iron-icon icon="trending-up"></iron-icon>
+              <span>Graph</span>
+            </a>
+          </paper-menu>
+
+          <afm-controls id='controls'></afm-controls>
+        </paper-scroll-header-panel>
+
+      <!-- Main Area -->
+      <paper-scroll-header-panel main condenses keep-condensed-header>
+
+        <!-- Main Toolbar -->
+          <paper-toolbar id="mainToolbar" class="tall">
+            <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
+            <span class="flex"></span>
+
+            <!-- Toolbar icons -->
+            <paper-icon-button icon="refresh"></paper-icon-button>
+            <paper-icon-button icon="search"></paper-icon-button>
+
+            <!-- Application name -->
+            <div class="middle middle-container center horizontal layout">
+              <div class="app-name">OpenAFM</div>
+            </div>
+
+            <!-- Application sub title -->
+            <div class="bottom bottom-container center horizontal layout">
+              <div class="bottom-title paper-font-subhead">Interface for Low Cost Scientific Instruments</div>
+            </div>
+
+          </paper-toolbar>
+
+          <!-- Main Content -->
+          <div class="content">
+            <iron-pages attr-for-selected="data-route" selected="{{route}}">
+
+              <section data-route="home">
+                <paper-material elevation="1">
+                  <p class="paper-font-body2">Information Card</p>
+                </paper-material>
+                <paper-material elevation="1">
+                  <p class="paper-font-body2">This is another card.</p>
+                </paper-material>
+              </section>
+
+              <section data-route="graph">
+                <my-graph></my-graph>
+              </section>
+
+            </iron-pages>
+          </div>
+        </paper-scroll-header-panel>
+      </paper-drawer-panel>
+    </template>
+
+    <!-- build:js js/app.js -->
+    <script src="js/app.js"></script>
+    <!-- endbuild-->
   </body>
 </html>
