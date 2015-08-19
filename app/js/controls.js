@@ -37,57 +37,49 @@ var arduino = require('./js/arduino.js');
     },              
 
     searchPressed: function() {
+      function reconnect(that) {
+        that.searchButton = 'CONNECT';
+        that.serButSty = yellow;
+        that.scaButSty = grey;
+      }
       if (this.searchButton == 'CONNECT') {
         var that = this;
-        console.log('button = connect');
         arduino.findBoard(function(board) {
-          console.log(board);
           BOARD = board;
           if (BOARD === true) {
-            console.log('still true');
-            console.log(that.searchButton);
             that.searchButton = 'CONNECTED';
-            console.log(that.searchButton);
             that.serButSty = green;
             that.scaButSty = yellow;
           } else {
-            console.log('still false');
             that.searchButton = 'FAILED';
             that.serButSty = red;           
-            function reconnect(that) {
-              that.searchButton = 'CONNECT';
-              that.serButSty = yellow;
-            }
-            setTimeout(reconnect, 1000, that);
+            setTimeout(reconnect, 2500, that);
           }
         });
       } else {
-        console.log('button != connect');
       }
     },
 
     scanPressed: function() {
+      function allowCancel(that) {
+        that.scanButton = 'CANCEL';
+        that.scaButStyle = red;
+      }
       if (BOARD === true) {
-
         if (this.scanButton == 'SCAN') {
-          //start recording
+          //start scan
           var session = sessionManager.newSession('Session Name');
-
           currentSession = session;
 
           session.listener = function() {
             session.data.push(this.raw);
-          }
+          };
 
           arduino.addListener(session.listener);
+
           this.scanButton = 'SCANNING';
           this.scaButSty = green;
-          (function () {
-            setTimeout(function () {
-              this.scanButton = 'CANCEL';
-              this.scaButStyle = red;
-            }, 1000);
-          })();
+          setTimeout(allowCancel, 2500, that);
         } else {
           board.removeListener(currentSession.listener);
           sessionManager.endSession(currentSession);
@@ -96,6 +88,31 @@ var arduino = require('./js/arduino.js');
           this.scaButSty = green;
         }
       }
+    },
+
+    ready: function() {
+      var that = this;
+
+      function reconnect(that) {
+        that.searchButton = 'CONNECT';
+        that.serButSty = yellow;
+        that.scaButSty = grey;
+      }
+ 
+      function isBoard(that){
+        if (that.searchButton == 'CONNECTED') {
+          arduino.checkBoard(function (board) {
+            BOARD = board;
+            if (BOARD === false) {
+              that.searchButton = 'DISCONNECTED';
+              that.serButSty = red;
+              setTimeout(reconnect, 2500, that);
+            }
+          });
+        }
+      }
+
+      setInterval(isBoard, 800, that);
     },
 
   });

@@ -46,10 +46,13 @@ function findBoard(cb) {
 }
 
 function checkBoard(cb) {
-  var first = true;
+  var last = false;
   serialPort.list(function (err, ports) {
     // check ports on computer
-    ports.forEach(function(port) {
+    ports.forEach(function(port, i, stop) {
+      if (i == ports.length -1){
+        last = true;
+      }
       COM = port.comName;
       // check to see if arduino plugged in and open connection
       if ((COM.search("cu.usbmodem") != -1) ||
@@ -58,10 +61,8 @@ function checkBoard(cb) {
           (COM.search("COM")) != -1) {
         cb(true);
       } else {
-        if (first === false) {
+        if (last === true) {
           cb(false);
-        } else {
-          first = false;
         }
       }
     });
