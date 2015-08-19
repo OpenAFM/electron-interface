@@ -8,10 +8,14 @@ var connected = 0;
 var COM;
 
 function findBoard(cb) {
-  var first = true;
+  var last = false;
   serialPort.list(function (err, ports) {
     // check ports on computer
-    ports.forEach(function(port) {
+    ports.forEach(function(port, i) {
+      if (i == ports.length - 1){
+        last = true;
+      }
+ 
       COM = port.comName;
       // check to see if arduino plugged in and open connection
       if ((COM.search("cu.usbmodem") != -1) ||
@@ -32,11 +36,10 @@ function findBoard(cb) {
           }
         });
       } else {
-        if (first === true){
+        if (last === true){
           console.log("Arduino not found.");
           cb(false);
         }
-        first = false;
       }
     });
   });
@@ -55,7 +58,7 @@ function checkBoard(cb) {
           (COM.search("COM")) != -1) {
         cb(true);
       } else {
-        if (first == false) {
+        if (first === false) {
           cb(false);
         } else {
           first = false;

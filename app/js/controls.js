@@ -44,7 +44,9 @@ var arduino = require('./js/arduino.js');
           BOARD = board;
           if (BOARD === true) {
             console.log('still true');
+            console.log(this.searchButton);
             this.searchButton = 'CONNECTED';
+            console.log(this.searchButton);
             this.serButSty = green;
             this.scaButSty = yellow;
           } else {
