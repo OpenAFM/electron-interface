@@ -6,9 +6,9 @@ var connection;
 var array = [];
 var connected = 0;
 var COM;
-var first = true;
 
 function findBoard(cb) {
+  var first = true;
   serialPort.list(function (err, ports) {
     // check ports on computer
     ports.forEach(function(port) {
@@ -42,7 +42,8 @@ function findBoard(cb) {
   });
 }
 
-function isBoard() {
+function checkBoard(cb) {
+  var first = true;
   serialPort.list(function (err, ports) {
     // check ports on computer
     ports.forEach(function(port) {
@@ -52,18 +53,18 @@ function isBoard() {
           (COM.search("cu.wchusbserial1410") != -1) ||
           (COM.search("tty.usbmodem") != -1) || 
           (COM.search("COM")) != -1) {
-        connected = true;
+        cb(true);
       } else {
-        connected = false;
+        if (first == false) {
+          cb(false);
+        } else {
+          first = false;
+        }
       }
     });
   });
 }
 
-function checkBoard() {
-  isBoard();
-  return connected;
-}
 module.exports = {
   findBoard: findBoard,
   checkBoard : checkBoard
