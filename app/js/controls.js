@@ -38,26 +38,27 @@ var arduino = require('./js/arduino.js');
 
     searchPressed: function() {
       if (this.searchButton == 'CONNECT') {
+        var that = this;
         console.log('button = connect');
         arduino.findBoard(function(board) {
           console.log(board);
           BOARD = board;
           if (BOARD === true) {
             console.log('still true');
-            console.log(this.searchButton);
-            this.searchButton = 'CONNECTED';
-            console.log(this.searchButton);
-            this.serButSty = green;
-            this.scaButSty = yellow;
+            console.log(that.searchButton);
+            that.searchButton = 'CONNECTED';
+            console.log(that.searchButton);
+            that.serButSty = green;
+            that.scaButSty = yellow;
           } else {
             console.log('still false');
-            this.searchButton = 'FAILED';
-            this.serButSty = red;           
+            that.searchButton = 'FAILED';
+            that.serButSty = red;           
             function reconnect(that) {
               that.searchButton = 'CONNECT';
               that.serButSty = yellow;
             }
-            setTimeout(reconnect, 1000, this);
+            setTimeout(reconnect, 1000, that);
           }
         });
       } else {
