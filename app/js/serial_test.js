@@ -70,11 +70,14 @@ function checkBoard(cb) {
 }
 
 function initialiseBoard() {
-  connection.write("IN");
-
+  connection.write("IN;"); 
 }
 
-module.exports = {
-  findBoard: findBoard,
-  checkBoard : checkBoard
-};
+(function() {
+  findBoard(function(board) {
+  if (board === true) {
+    initialiseBoard();
+  }
+  });
+})();
+

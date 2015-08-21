@@ -27,13 +27,17 @@
               <span>Home</span>
             </a>
 
-            <a data-route="graph" href="/graph">
+            <a data-route="profilometer" href="/profilometer">
               <iron-icon icon="trending-up"></iron-icon>
-              <span>Graph</span>
+              <span>Line Profilometer</span>
+            </a>
+            <a data-route="afm" href="/afm">
+              <iron-icon icon="dashboard"></iron-icon>
+              <span>AFM</span>
             </a>
           </paper-menu>
 
-          <afm-controls id='controls'></afm-controls>
+          <afm-controls id="controls"></afm-controls>
         </paper-scroll-header-panel>
 
       <!-- Main Area -->
@@ -43,10 +47,6 @@
           <paper-toolbar id="mainToolbar" class="tall">
             <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
             <span class="flex"></span>
-
-            <!-- Toolbar icons -->
-            <paper-icon-button icon="refresh"></paper-icon-button>
-            <paper-icon-button icon="search"></paper-icon-button>
 
             <!-- Application name -->
             <div class="middle middle-container center horizontal layout">
@@ -73,8 +73,12 @@
                 </paper-material>
               </section>
 
-              <section data-route="graph">
-                <my-graph></my-graph>
+              <section data-route="profilometer">
+                <my-prof></my-prof>
+              </section>
+
+              <section data-route="afm">
+                <my-afm></my-afm>
               </section>
 
             </iron-pages>

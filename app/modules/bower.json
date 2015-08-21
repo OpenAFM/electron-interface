@@ -7,7 +7,8 @@
     "platinum-elements": "PolymerElements/platinum-elements#1.0.1",
     "neon-elements": "PolymerElements/neon-elements#1.0.0",
     "page": "visionmedia/page.js#~1.6.3",
-    "paper-button": "PolymerElements/paper-button#~1.0.3"
+    "paper-button": "PolymerElements/paper-button#~1.0.3",
+    "paper-dropdown-menu": "polymerelements/paper-dropdown-menu#~1.0.2"
   },
   "devDependencies": {
     "web-component-tester": "*",

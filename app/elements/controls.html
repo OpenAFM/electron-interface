@@ -4,13 +4,41 @@
     #my-button {
       color: black;
     }
+
+    #afmHeader {
+      color: var(--secondary-text-color);
+      background-color : var(--drawer-menu-color);
+      border-bottom: var(--drawer-toolbar-border-color);
+    }
   </style>
 
   <template>
-    <h2 class="paper-font-display2">AFM Controls</h2>
-    <paper-button id='my-button' on-click="searchPressed" style$="{{serButSty}}">{{searchButton}}</paper-button>
-    <br><br>
-    <paper-button id='my-button' on-click="scanPressed" style$="{{scaButSty}}">{{scanButton}}</paper-button>
+    <paper-toolbar id="afmHeader">
+      <span class="paper-font-title">Device Controls</span>
+    </paper-toolbar>
+    <paper-menu class=list>
+    <paper-button id="my-button" on-click="searchPressed" style$="{{serButSty}}">{{searchButton}}</paper-button>
+    <paper-dropdown-menu label="Scan Size">
+      <paper-menu class="dropdown-content">
+        <paper-item>256px x 256px</paper-item>
+        <paper-item>512px x 512px</paper-item>
+      </paper-menu>
+    </paper-dropdown-menu>
+    <paper-dropdown-menu label="Scan Resolution">
+      <paper-menu class="dropdown-content">
+        <paper-item></paper-item>
+        <paper-item>1 zillion ppi</paper-item>
+      </paper-menu>
+    </paper-dropdown-menu>
+    <paper-dropdown-menu label="Probe Force">
+      <paper-menu class="dropdown-content">
+        <paper-item>Squishy</paper-item>
+        <paper-item>Pushy</paper-item>
+        <paper-item>Rammy</paper-item>
+      </paper-menu>
+    </paper-dropdown-menu>
+    <paper-button id="my-button" on-click="scanPressed" style$="{{scaButSty}}" disabled=false>{{scanButton}}</paper-button>
+    <paper-menu>
   </template>
 
   <script src="../js/controls.js"></script> 
