@@ -22,22 +22,22 @@
 
           <!-- Drawer Content -->
           <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
-            <a data-route="home" href="/">
+            <a data-route="home" href="/" >
               <iron-icon icon="home"></iron-icon>
               <span>Home</span>
             </a>
 
-            <a data-route="profilometer" href="/profilometer">
+            <a data-route="profilometer" href="/profilometer" >
               <iron-icon icon="trending-up"></iron-icon>
               <span>Line Profilometer</span>
             </a>
-            <a data-route="afm" href="/afm">
+            <a data-route="afm" href="/afm" onselect="onAFMSelect" >
               <iron-icon icon="dashboard"></iron-icon>
               <span>AFM</span>
             </a>
           </paper-menu>
 
-          <afm-controls id="controls"></afm-controls>
+          <afm-controls id="controls" style="display:none;"></afm-controls>
         </paper-scroll-header-panel>
 
       <!-- Main Area -->
@@ -62,6 +62,11 @@
 
           <!-- Main Content -->
           <div class="content">
+            <div id="splash" style="display:block;">
+              <img src="images/image1.jpg">
+              <img src="images/image2.jpg">
+              <img src="images/image3.jpg">
+            </div>
             <iron-pages attr-for-selected="data-route" selected="{{route}}">
 
               <section data-route="home">
@@ -90,5 +95,6 @@
     <!-- build:js js/app.js -->
     <script src="js/app.js"></script>
     <!-- endbuild-->
+
   </body>
 </html>

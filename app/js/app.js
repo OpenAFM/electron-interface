@@ -10,6 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 (function(document) {
   'use strict';
 
+
   // Grab a reference to our auto-binding template
   // and give it some initial binding values
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
@@ -57,10 +58,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   // Close drawer after menu item is selected if drawerPanel is narrow
   app.onMenuSelect = function() {
-    var drawerPanel = document.querySelector('#paperDrawerPanel');
+   var splash = document.querySelector('#splash');
+  //hide splash on menu selection
+   splash.style.display="none";
+   var drawerPanel = document.querySelector('#paperDrawerPanel');
     if (drawerPanel.narrow) {
       drawerPanel.closeDrawer();
     }
   };
+
+  var controls = document.querySelector('#controls');
+  app.onAFMSelect = function() {
+    controls.style.display="block";
+  };
+
+
+
+
+
+
+
+
+
+
+
 
 })(document);
