@@ -1,4 +1,3 @@
-var sessionManager = require('./js/p_session_manager.js');
 var arduino = require('./js/arduino.js');
 
 (function() {
@@ -6,7 +5,6 @@ var arduino = require('./js/arduino.js');
   var red = 'background-color: red';
   var yellow = 'background-color: yellow';
   var grey = 'background-color: grey';
-  var currentSession;
   var BOARD = false;
   var SCANNING = false;
 
@@ -87,26 +85,19 @@ var arduino = require('./js/arduino.js');
        // if board connected and scan not ongoing begin scan
        // and set button to green & 'scannning' temporarily
        // then set to red 'cancel' button
+
+          arduino.initialiseBoard(function() {
+            arduino.scanProfilo('Session Name');
+          });
+
           SCANNING = true;
-          var session = sessionManager.newSession('Session Name');
-          currentSession = session;
-
-          session.listener = function() {
-            session.data.push(this.raw);
-          };
-
-          arduino.initialiseBoard();
-          arduino.addListener(session.listener);
-
           this.scanButton = 'SCANNING';
           this.scaButSty = green;
           setTimeout(allowCancel, 2500, that);
         } else {
           // if scan ongoing then button acts as cancel,
           // ending scan session and resetting button to 'scan'
-          board.removeListener(currentSession.listener);
-          sessionManager.endSession(currentSession);
-          currentSession = null;
+          arduino.endProfilo();
           this.scanButton = 'SCAN';
           this.scaButSty = green;
         }

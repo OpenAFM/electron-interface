@@ -1,8 +1,10 @@
 var serialPort = require("serialport");
 var SerialPort = require("serialport").SerialPort;
+var pManager = require('./js/p_session_manager.js');
 var arduino;
 var connection;
 var COM;
+var current_session;
 
 
 function findBoard(cb) {
@@ -67,16 +69,60 @@ function checkBoard(cb) {
   });
 }
 
-function initialiseBoard() {
-  connection.write("IN", function () {
-    connection.on('data', function(data) {
-      data = "" + data;
-      if (data == 'IN') {
+function initialiseBoard(cb) {
+  confirmReady(function(){
+    console.log('Device Initialised');
+  }, cb);
+}
+      
+function scanProfilo(name) {
+  var session = pManger.newSession(name);
+  currentSession = session;
+  connection.on('data', function(data) {
+    data = "" + data;
+    if (data != 'RDY;') {
+      saveProfilo(data, function() {
+        confirmReady(function(){
+          console.log('Data Received');
+          if (currentSession.data.length == 512 * 256) {
+            endProfilo();
+            connection.write('DONE;');
+          }
+       });
+      });   
+    }
+  });
+}
 
+function saveProfilo(data, cb) {
+  var dataArray = data.split(',');
+  if (dataArray.length == 513) {
+    console.log('Data Length Correct');
+    // remove the semi colon at the end
+    dataArray = dataArray.slice(0, dataArray.length() - 1);
+    dataArray.forEach(function(point) {
+      currentSession.data.push(point);
+    }, cb);
+  } else {
+    console.log('Error: Data Length Incorrect!');
+  }
+}
+
+function confirmReady(cb) {
+  connection.write('RDY;', function(){
+    connection.on('data', function(data) {
+      if (data == 'RDY;') {
+        cb();
+      } else {
+        console.log('Error: Did not receive ready confirmation'); 
       }
     });
   });
+}
 
+function endProfilo() {
+  pMangager.endSession(currentSession);
+  currentSession = null;
 }
 
 module.exports = {

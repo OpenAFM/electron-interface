@@ -3,10 +3,10 @@ var uuid = require('uuid');
 function Session(name) {
   return {
     name: name,
-    id: uuid.v4(),
-    startTime: null,
-    endTime: null,
-    data: []
+      id: uuid.v4(),
+        startTime: null,
+          endTime: null,
+            data: []
   };
 }
 
