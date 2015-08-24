@@ -13,22 +13,27 @@
   </style>
 
   <template>
+
     <paper-toolbar id="afmHeader">
       <span class="paper-font-title">Device Controls</span>
     </paper-toolbar>
     <paper-menu class=list>
+
     <paper-button id="my-button" on-click="searchPressed" style$="{{serButSty}}">{{searchButton}}</paper-button>
+
     <paper-dropdown-menu label="Scan Size" onselect="sizeSelect">
       <paper-menu class="dropdown-content">
         <paper-item>256px x 256px</paper-item>
         <paper-item>512px x 512px</paper-item>
       </paper-menu>
     </paper-dropdown-menu>
+
     <paper-dropdown-menu label="Scan Resolution">
       <paper-menu class="dropdown-content">
         <paper-item onselect="resSelect">1 zillion ppi</paper-item>
       </paper-menu>
     </paper-dropdown-menu>
+
     <paper-dropdown-menu label="Probe Force">
       <paper-menu class="dropdown-content">
         <paper-item>Squishy</paper-item>
@@ -36,7 +41,9 @@
         <paper-item>Rammy</paper-item>
       </paper-menu>
     </paper-dropdown-menu>
+
     <paper-button id="my-button" on-click="scanPressed" style$="{{scaButSty}}" disabled?={{disabler}}>{{scanButton}}</paper-button>
+
     <paper-menu>
   </template>
 
