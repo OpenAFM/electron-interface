@@ -1,10 +1,10 @@
 var serialPort = require('serialport');
 var SerialPort = require('serialport').SerialPort;
-var pManager = require('./js/p_session_manager.js');
+var pManager = require('../js/p_session_manager.js');
 var arduino;
 var connection;
 var COM;
-var current_session;
+var currentSession;
 var DONE;
 
 function findBoard(cb) {
@@ -20,7 +20,8 @@ function findBoard(cb) {
       // check to see if arduino plugged in and open connection
       if ((COM.search('cu.usbmodem') != -1) ||
           (COM.search('cu.wchusbserial1410') != -1) ||
-          (COM.search('tty.usbmodem') != -1) || 
+          (COM.search('tty.usbmodem') != -1) ||
+          (COM.search('cu.usbserial') != -1) ||
           (COM.search('COM')) != -1) {
         arduino = port;
         connection = new SerialPort(arduino.comName, {
@@ -31,13 +32,13 @@ function findBoard(cb) {
           if ( error ) {
             console.log('failed to open: '+ error);
           } else {
-            console.log('Arduino Ready');
+            console.log('Arduino ready!');
             cb(true);
           }
         });
       } else {
         if (last === true){
-          console.log('Arduino not found.');
+          console.log('Arduino not found!');
           cb(false);
         }
       }
@@ -58,6 +59,7 @@ function checkBoard(cb) {
       if ((COM.search('cu.usbmodem') != -1) ||
           (COM.search('cu.wchusbserial141') != -1) ||
           (COM.search('tty.usbmodem') != -1) || 
+          (COM.search('cu.usbserial') != -1) ||
           (COM.search('COM')) != -1) {
         cb(true);
       } else {
@@ -70,20 +72,24 @@ function checkBoard(cb) {
 }
 
 function initialiseBoard(cb) {
+  var session = pManager.newSession(name);
+  currentSession = session;
+  console.log('Attempting initialisation.');
   confirmReady(function(){
-    console.log('Device Initialised');
-  }, cb);
+    console.log('Device initialised.');
+    cb();
+  });
 }
       
 function scanProfilo(name) {
+  console.log('Scan Started');
   DONE = false;
-  var session = pManger.newSession(name);
-  currentSession = session;
   connection.on('data', function(data) {
     data = "" + data;
-    if (data != 'RDY') {
+    console.log('Received potential data: ' + data);
+    if (data.slice(0,3) != 'RDY') {
+      console.log('Data Received: ' + data);
       saveProfilo(data, function() {
-        console.log('Data Received');
         if (DONE === true) {
           endProfilo();
         }
@@ -97,6 +103,8 @@ function scanProfilo(name) {
           });
         }
       });   
+    } else {
+      console.log("Should have received data but instead received RDY.");
     }
   });
 }
@@ -117,22 +125,30 @@ function saveProfilo(data, cb) {
 
 function confirmReady(cb) {
   connection.write('RDY;', function(){
+    console.log('Sent ready signal.');
     connection.on('data', function(data) {
-      if (data == 'RDY') {
+      data = "" + data;
+      if (data.slice(0,3) == 'RDY') {
+        console.log('Received ready signal.');
         cb();
       } else {
         console.log('Error: Did not receive ready confirmation', cb); 
+        console.log('Instead received:' + data +";");
       }
     });
   });
 }
 
 function endProfilo() {
-  pMangager.endSession(currentSession);
-  currentSession = null;
+  pManager.endSession(currentSession, function() {
+    currentSession = null;
+  });
 }
 
 module.exports = {
   findBoard: findBoard,
-  checkBoard : checkBoard
+  checkBoard : checkBoard,
+  initialiseBoard : initialiseBoard,
+  scanProfilo : scanProfilo,
+  endProfilo : endProfilo
 };

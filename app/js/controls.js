@@ -78,7 +78,7 @@ var arduino = require('./js/arduino.js');
     scanPressed: function() {
       function allowCancel(that) {
         that.scanButton = 'CANCEL';
-        that.scaButStyle = red;
+        that.scaButSty = red;
       }
      if (BOARD === true) {
         if (this.scanButton == 'SCAN') {
@@ -87,13 +87,14 @@ var arduino = require('./js/arduino.js');
        // then set to red 'cancel' button
 
           arduino.initialiseBoard(function() {
+            console.log('Beginning scan...');
             arduino.scanProfilo('Session Name');
           });
 
           SCANNING = true;
           this.scanButton = 'SCANNING';
           this.scaButSty = green;
-          setTimeout(allowCancel, 2500, that);
+          setTimeout(allowCancel, 2500, this);
         } else {
           // if scan ongoing then button acts as cancel,
           // ending scan session and resetting button to 'scan'
