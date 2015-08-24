@@ -1,16 +1,15 @@
 var app = require('app'); 
-var serial = require('serialport');
 var BrowserWindow = require('browser-window'); 
 
-// global reference of window object so it isn't JavaScript GCed.
+//global reference of window object so it isn't JavaScript GCed.
 var mainWindow = null;
 
 // method called when Electron has initialized.
 app.on('ready', function() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1250, 
-    height: 1000
+    width: 1440, 
+    height: 900
   });
 
   //load the index.html of the app.

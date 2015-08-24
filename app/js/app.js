@@ -67,10 +67,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   };
 
-  var controls = document.querySelector('#controls');
-  app.onAFMSelect = function() {
-    controls.style.display="block";
-  };
+  
+  
+
+  
 
 
 

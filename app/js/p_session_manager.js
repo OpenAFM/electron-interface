@@ -1,6 +1,6 @@
 var fs = require('fs');
-var sessionType = require('./session.js');
-var SESSION_FOLDER = __dirname + '/../sessions/';
+var sessionType = require('./profilometer_session.js');
+var SESSION_FOLDER = __dirname + '/../sessions/profilometer/';
 var EXTENSION = '.json';
 var SESSIONS = [];
 

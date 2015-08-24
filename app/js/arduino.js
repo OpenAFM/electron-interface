@@ -1,11 +1,9 @@
 var serialPort = require("serialport");
 var SerialPort = require("serialport").SerialPort;
 var arduino;
-var dataArray = [];
 var connection;
-var array = [];
-var connected = 0;
 var COM;
+
 
 function findBoard(cb) {
   var last = false;
@@ -70,7 +68,14 @@ function checkBoard(cb) {
 }
 
 function initialiseBoard() {
-  connection.write("IN");
+  connection.write("IN", function () {
+    connection.on('data', function(data) {
+      data = "" + data;
+      if (data == 'IN') {
+
+      }
+    });
+  });
 
 }
 
