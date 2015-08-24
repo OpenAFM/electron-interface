@@ -72,7 +72,7 @@ function checkBoard(cb) {
 function initialiseBoard(cb) {
   confirmReady(function(){
     console.log('Device Initialised');
-  });
+  }, cb);
 }
       
 function scanProfilo(name) {
@@ -84,7 +84,7 @@ function scanProfilo(name) {
     if (data != 'RDY') {
       saveProfilo(data, function() {
         console.log('Data Received');
-        if (DONE == true) {
+        if (DONE === true) {
           endProfilo();
         }
         //if this in penultimate line
@@ -121,7 +121,7 @@ function confirmReady(cb) {
       if (data == 'RDY') {
         cb();
       } else {
-        console.log('Error: Did not receive ready confirmation'); 
+        console.log('Error: Did not receive ready confirmation', cb); 
       }
     });
   });
