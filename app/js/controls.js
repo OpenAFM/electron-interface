@@ -97,7 +97,7 @@ var arduino = require('./js/arduino.js');
         } else {
           // if scan ongoing then button acts as cancel,
           // ending scan session and resetting button to 'scan'
-          arduino.endProfilo();
+          arduino.endScan();
           this.scanButton = 'SCAN';
           this.scaButSty = green;
         }

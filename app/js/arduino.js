@@ -8,6 +8,7 @@ var currentSession;
 var DONE;
 var currentLine = '';
 var readyCount;
+var lineLength = 256;
 
 
 function findBoard(cb) {
@@ -63,7 +64,7 @@ function checkBoard(cb) {
           (COM.search('cu.wchusbserial141') != -1) ||
           (COM.search('tty.usbmodem') != -1) || 
           (COM.search('cu.usbserial') != -1) ||
-          (COM.search('COM')) != -1) {
+          (COM.search('COM') != -1)) {
         cb(true);
       } else {
         if (last === true) {
@@ -89,6 +90,7 @@ function receiveData() {
   //each time new data is received
   connection.on('data', function(data){
     data = '' + data;
+    //console.log('New data: ' + data);
     //check if it contains a semicolon
     var semi = data.search(';');
     // if it doesn't append it to the current data store
@@ -103,10 +105,11 @@ function receiveData() {
       if (startData == 'GO') {
         console.log('Go received');
         connection.write('RDY;');
+        readyCount += 1;
         console.log('Scan started.');
       }
       //if this is RDY then store anything after the semicolon
-      else if (startData == 'RDY') {
+      else if ((startData == 'RDY') || (startData == 'DONE')) {
         realData = data.slice(semi + 1, data.length);
         //if this actual data has a semi colon it is a whole line (or corrupt)
         var nextSemi = realData.search(';');
@@ -135,18 +138,21 @@ function receiveData() {
       }
       //if there is a semicolon but no start text this is the end of a line of actual data
       else {
-        if (semi == realData.length) {
-          currentLine = currentLine + realData.slice(0, realData.length);
+        if (semi == startData.length) {
+          currentLine = currentLine + startData.slice(0, startData.length);
             //TO DO:
             //plotData(currentLine);
             saveData(currentLine, function() {
               checkFinished(function() {
+                //currentLine used so wipe it
+                currentLine = '';
                 connection.write('RDY;');
                 readyCount += 1;
                 console.log('Sent ready command ' + readyCount + ', waiting for new line');
               });
             });
         } else {
+          console.log('Current line: ' + currentLine + '. Length: ' + currentLine.length);
           console.log('End data is corrupted by stray semicolon');
           console.log('Corrupt data: ' + data);
           endScan();
@@ -159,10 +165,15 @@ function receiveData() {
 function checkFinished(cb) {
   if (DONE === true) {
     console.log('All data received, terminating session');
+    if (currentSession.data.length == lineLength * lineLength * 2) {
+      console.log('Image dataset looks good.');
+    } else {
+      console.log('Image dataset length does noot look correct. Length: ' + currentSession.data.length);
+    }
     endScan();
   } else{
     //if that was the penultimate line
-    if (currentSession.data.length == 512 * 255) {
+    if (readyCount == 255) {
       console.log('This was the penultimate line, preparing to terminate session');
       connection.write('DONE;');
       DONE = true;
@@ -178,17 +189,23 @@ function saveData(data, cb) {
   var dataArray = data.split(',');
   function appendCb(dataArray, cb) {
     dataArray.forEach(function(point) {
-      currentSession.data.push(parseInt(point, 10));
+      if (parseInt(point, 10) === null) {
+        console.log('Got null datapoint: ' + point);
+        currentSession.data.push(0);
+      } else {
+        currentSession.data.push(parseInt(point, 10));
+      }
     });
     cb();
   } 
-  if (dataArray.length == 512) {
+  if (dataArray.length == lineLength * 2) {
     console.log('Data length correct!');
     // remove the semi colon at the end
-    dataArray = dataArray.slice(0, dataArray.length - 1);
+    // actually weve already done that?
+    //dataArray = dataArray.slice(0, dataArray.length - 1);
     appendCb(dataArray, cb);
   } else {
-    console.log('Error: Data length incorrect, cancelling scan! Data' + data);
+    console.log('Error: Data length incorrect, cancelling scan! Data' + dataArray);
     endScan();
   }
 }
@@ -205,5 +222,6 @@ function endScan() {
 module.exports = {
   findBoard: findBoard,
   checkBoard : checkBoard,
-  startScan : startScan
+  startScan : startScan,
+  endScan : endScan
 };
