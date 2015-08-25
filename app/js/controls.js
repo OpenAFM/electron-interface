@@ -86,9 +86,8 @@ var arduino = require('./js/arduino.js');
        // and set button to green & 'scannning' temporarily
        // then set to red 'cancel' button
 
-          arduino.initialiseBoard(function() {
+          arduino.startScan('Scan Name', function() {
             console.log('Beginning scan...');
-            arduino.scanProfilo('Session Name');
           });
 
           SCANNING = true;

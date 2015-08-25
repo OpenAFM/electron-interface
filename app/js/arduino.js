@@ -6,8 +6,9 @@ var connection;
 var COM;
 var currentSession;
 var DONE;
-var currentLine;
+var currentLine = '';
 var readyCount;
+
 
 function findBoard(cb) {
   var last = false;
@@ -73,82 +74,111 @@ function checkBoard(cb) {
   });
 }
 
-
-
-
-
-function getData(cb) {
-  var currentData = '';
-  connection.on('data', function(data){
-    data = '' + data;
-    if (data.slice(0,4) == 'RDY;') {
-      console.log('Receiving new line.');
-      currentData = '';
-      currentData = currentData + data.slice(4, data.length);
-    } else {
-      currentData = currentData + data;
-    }
-    var semi = currentData.search(';');
-    //there is a semi colon in the data
-    if (semi != -1) {
-      if (semi == currentData.length -1 ) {
-        console.log('Line Received: ' + data);
-        cb(currentData);
-        return;
-      } else {
-        console.log('Stray semi-colon in data: ' + currentData);
-        return;
-      }
-    }
-  });
-}
-
-
-
-function initialiseBoard(cb) {
+function startScan(name) {
+  DONE = false;
   readyCount = 0;
   var session = pManager.newSession(name);
   currentSession = session;
   console.log('Attempting initialisation.');
   connection.write('GO;', function(){
-    connection.on('data', function(data) {
-      data = '' + data;
-      if (data == 'GO;') {
-        console.log('Device initialised.');
-        confirmReady(cb);
-      }
-    });
-  });
-}
-      
-function scanProfilo(name) {
-  console.log('Scan Started');
-  DONE = false;
-  getData(function(currentLine) {
-    saveProfilo(currentLine, function() {
-      if (DONE === true) {
-        console.log('All data received, terminating session');
-        endProfilo();
-      } else{
-        //if that was the penultimate line
-        if (currentSession.data.length == 512 * 255) {
-          console.log('This was the penultimate line, preparing to terminate session');
-          connection.write('DONE;');
-          DONE = true;
-        } else {
-          console.log('Data processed, proceeding');
-          confirmReady(function() {});
-        }
-      }
-    });
+    receiveData();
   });
 }
 
-function saveProfilo(data, cb) {
+function receiveData() {
+  //each time new data is received
+  connection.on('data', function(data){
+    data = '' + data;
+    //check if it contains a semicolon
+    var semi = data.search(';');
+    // if it doesn't append it to the current data store
+    if (semi == -1) {
+      currentLine = currentLine + data;
+    } 
+    // if it does contain a semicolon...
+    else {
+      //take the data up to the semicolon
+      var startData = data.slice(0, semi);
+      //if this is GO then send a RDY to start the scan
+      if (startData == 'GO') {
+        console.log('Go received');
+        connection.write('RDY;');
+        console.log('Scan started.');
+      }
+      //if this is RDY then store anything after the semicolon
+      else if (startData == 'RDY') {
+        realData = data.slice(semi + 1, data.length);
+        //if this actual data has a semi colon it is a whole line (or corrupt)
+        var nextSemi = realData.search(';');
+        if (nextSemi != -1) {
+          if (nextSemi == realData.length) {
+            currentLine = realData.slice(0, realData.length);
+            //TO DO:
+            //plotData(currentLine);
+            saveData(currentLine, function() {
+              checkFinished(function() {
+                connection.write('RDY;');
+                readyCount += 1;
+                console.log('Sent ready command ' + readyCount + ', waiting for new line');
+              });
+            });
+          } else {
+            console.log('Start data is corrupted by stray semicolon');
+            console.log('Corrupt data: ' + data);
+            endScan();
+          }
+        }
+        //otherwise append this data to the current data store
+        else {
+          currentLine = currentLine + realData;
+        }
+      }
+      //if there is a semicolon but no start text this is the end of a line of actual data
+      else {
+        if (semi == realData.length) {
+          currentLine = currentLine + realData.slice(0, realData.length);
+            //TO DO:
+            //plotData(currentLine);
+            saveData(currentLine, function() {
+              checkFinished(function() {
+                connection.write('RDY;');
+                readyCount += 1;
+                console.log('Sent ready command ' + readyCount + ', waiting for new line');
+              });
+            });
+        } else {
+          console.log('End data is corrupted by stray semicolon');
+          console.log('Corrupt data: ' + data);
+          endScan();
+        } 
+      }
+    }
+  });
+}
+
+function checkFinished(cb) {
+  if (DONE === true) {
+    console.log('All data received, terminating session');
+    endScan();
+  } else{
+    //if that was the penultimate line
+    if (currentSession.data.length == 512 * 255) {
+      console.log('This was the penultimate line, preparing to terminate session');
+      connection.write('DONE;');
+      DONE = true;
+      cb();
+    } else {
+      console.log('Data processed, proceeding');
+      cb();
+    }
+  }
+}
+
+function saveData(data, cb) {
   var dataArray = data.split(',');
   function appendCb(dataArray, cb) {
     dataArray.forEach(function(point) {
-      currentSession.data.push(point);
+      currentSession.data.push(parseInt(point, 10));
     });
     cb();
   } 
@@ -159,19 +189,14 @@ function saveProfilo(data, cb) {
     appendCb(dataArray, cb);
   } else {
     console.log('Error: Data length incorrect, cancelling scan! Data' + data);
-    endProfilo();
+    endScan();
   }
 }
 
-function confirmReady(cb) {
-  readyCount += 1;
-  connection.write('RDY;', function(){
-    console.log('Sent ready signal' + readyCount + '.');
-    cb();
-  });
-}
-
-function endProfilo() {
+function endScan() {
+  //TO DO:
+  //reset the scan button to allow new scan
+  //
   pManager.endSession(currentSession, function() {
     currentSession = null;
   });
@@ -180,7 +205,5 @@ function endProfilo() {
 module.exports = {
   findBoard: findBoard,
   checkBoard : checkBoard,
-  initialiseBoard : initialiseBoard,
-  scanProfilo : scanProfilo,
-  endProfilo : endProfilo
+  startScan : startScan
 };
