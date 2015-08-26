@@ -27,13 +27,17 @@
               <span>Home</span>
             </a>
 
-            <a data-route="profilometer" href="/profilometer" >
+            <a data-route="calibration" href="/calibration" >
               <iron-icon icon="trending-up"></iron-icon>
-              <span>Line Profilometer</span>
+              <span>Calibration</span>
             </a>
             <a data-route="afm" href="/afm">
               <iron-icon icon="dashboard"></iron-icon>
               <span>AFM</span>
+            </a>
+            <a data-route="my-scans" href="/my-scans">
+              <iron-icon icon="dashboard"></iron-icon>
+              <span>My Scans</span>
             </a>
           </paper-menu>
 
@@ -78,12 +82,16 @@
                 </paper-material>
               </section>
 
-              <section data-route="profilometer">
-                <my-prof></my-prof>
+              <section data-route="calibration">
+                <my-calibration></my-calibration>
               </section>
 
               <section data-route="afm">
                 <my-afm></my-afm>
+              </section>
+
+              <section data-route="my-scans">
+                <my-scans></my-scans>
               </section>
 
             </iron-pages>

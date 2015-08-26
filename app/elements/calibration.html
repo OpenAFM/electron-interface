@@ -1,12 +1,12 @@
-<dom-module id="my-afm">
+<dom-module id="my-calibration">
   <style>
   </style>
 
   <template>
-    <h2 class="paper-font-display2">Live AFM Scan Preview</h2>
+    <h2 class="paper-font-display2">AFM Calibration</h2>
     <div style="width: 100%; overflow: hidden;">
       <div style="width: 80%; float: left;">
-        <div id="plot-container"></div>
+        <div id="graph-container"></div>
       </div>
     </div>
 
@@ -16,17 +16,16 @@
   <script>
 (function() {
   Polymer({
-    is: 'my-afm',
+    is: 'my-calibration',
     properties: { },
     ready: function() {
-      drawPlots();
+      drawGraph();
     }
   });
 })();
 
-function drawPlots() {
+function drawGraph() {
 };
-
  </script>
 
 </dom-module>
