@@ -19,15 +19,15 @@ function leftTickAPoint(){
     if(left_imageCol >= n){
         return;
     }
-    console.log(left_imageRow+"_"+left_imageCol);
+    //console.log(left_imageRow+"_"+left_imageCol);
     td = new Date()
     time = td.getTime();
-    console.log(time-lastTime);
+    //console.log(time-lastTime);
     lastTime = time;
     offset = time - leftStartTime;
     offset = offset/delayTime;
-    console.log(offset);
-    console.log(left_imageCol);
+    //console.log(offset);
+    //console.log(left_imageCol);
     //这一行画完，结束
     for(var iter = left_imageCol; iter < n && iter < Math.round(offset); iter ++) {
         leftData[iter] = randomLinks[iter][left_imageRow];
@@ -63,15 +63,15 @@ function rightTickAPoint(){
     if(right_imageCol >= n){
         return;
     }
-    console.log(right_imageRow+"_"+right_imageCol);
+    //console.log(right_imageRow+"_"+right_imageCol);
     td = new Date()
     time = td.getTime();
-    console.log(time-lastTime);
+    //console.log(time-lastTime);
     lastTime = time;
     offset = time - rightStartTime;
     offset = offset/delayTime;
-    console.log(offset);
-    console.log(right_imageCol);
+    //console.log(offset);
+    //console.log(right_imageCol);
     //这一行画完，结束
     for(var iter = right_imageCol; iter < n && iter < Math.round(offset); iter ++) {
         rightData[n-1-iter] = randomLinks[n-1-iter][right_imageRow];

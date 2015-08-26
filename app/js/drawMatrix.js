@@ -4,7 +4,7 @@
 
 function initMatrix() {
     // 画左边的图
-    svg = d3.select("#leftImage").append("svg")
+    svg = d3.select(document.querySelector("#leftImage")).append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .style("margin", "0 auto")
@@ -94,7 +94,7 @@ function initMatrix() {
 }
 
 function getID(px,py,flag){
-    enumArray = {"0":"a","1":"b","2":"c","3":"d","4":"e","5":"f","6":"g","7":"h","8":"i","9":"j"}
+    enumArray = {"0":"a","1":"b","2":"c","3":"d","4":"e","5":"f","6":"g","7":"h","8":"i","9":"j"};
     xStr = px.toString();
     newXstr = "";
     for (var i =0; i < xStr.length;i++){
