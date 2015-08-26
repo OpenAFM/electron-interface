@@ -1,34 +1,59 @@
 <dom-module id="my-afm">
+
   <style>
+    @import url(../styles/draw.css);
+    
+    .background {
+      fill: #eee;
+    }
+
+    line {
+      stroke: #fff;
+    }
+
+    text.active {
+      fill: red;
+    }
   </style>
 
   <template>
-    <h2 class="paper-font-display2">Live AFM Scan Preview</h2>
-    <div style="width: 100%; overflow: hidden;">
-      <div style="width: 80%; float: left;">
-        <div id="plot-container"></div>
+    <h2 class="paper-font-display2" style="text-align:center">Live AFM Scan Preview</h2>
+      <div class="container">
+
+            <!--左边 normal 图像-->
+            <div class="col-md-6" id="leftImage"></div>
+
+             <!--左边 retrace 图像-->
+            <div class="col-md-6" id="rightImage"></div>
+
+             <!--左边 当前输入信号-->
+            <div class="col-md-6">
+                <div id="leftChart" style="margin:0 auto; width:420px"></div>
+            </div>
+
+             <!--右边 当前输入信号-->
+            <div class="col-md-6">
+                <div id="rightChart" style="margin:0 auto; width:420px"></div>
+            </div>
       </div>
-    </div>
-
-
+  
   </template>
 
-  <script>
-(function() {
-  Polymer({
-    is: 'my-afm',
-    properties: { },
-    ready: function() {
-      drawPlots();
-    }
-  });
-})();
+  <link href="../styles/bootstrap.min.css" rel="stylesheet">
 
-function drawPlots() {
-};
+  <!--<script src="js/bootstrap.min.js"></script>-->
+  <script src="../js/d3.js"></script>
 
- </script>
+  <script src="../js/common.js"></script>
+  
+  <!-- 绘出 Image & Retrace Image Signal Current-->
+  <script src="../js/drawSignal.js"></script>
+
+  <!-- 绘出 Image & Retrace Image -->
+  <script src="../js/drawMatrix.js"></script>
+
+  <script src="../js/afm.js"></script>
+
+
 
 </dom-module>
-  
-
