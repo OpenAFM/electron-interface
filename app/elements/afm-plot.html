@@ -1,8 +1,6 @@
-<dom-module id="my-afm">
+<dom-module id="afm-plot">
 
   <style>
-    @import url(../styles/draw.css);
-    
     .background {
       fill: #eee;
     }
@@ -15,6 +13,10 @@
       fill: red;
     }
   </style>
+
+
+  <link href="../styles/bootstrap.min.css" rel="stylesheet">
+  <link href="../styles/draw.css" rel="stylesheet">
 
   <template>
     <h2 class="paper-font-display2" style="text-align:center">Live AFM Scan Preview</h2>
@@ -40,8 +42,6 @@
   
   </template>
 
-  <link href="../styles/bootstrap.min.css" rel="stylesheet">
-
   <!--<script src="js/bootstrap.min.js"></script>-->
   <script src="../js/d3.js"></script>
 
@@ -53,8 +53,41 @@
   <!-- 绘出 Image & Retrace Image -->
   <script src="../js/drawMatrix.js"></script>
 
-  <script src="../js/afm.js"></script>
+  <!-- main control script -->
+  <script>
+    var n = 256;
+    function initialisePlot(n, cb) {
+      console.log('Initialising Plot');
+      initAll(n, function() {
+        cb();
+      });
+    }
+    var log = function() {
+      console.log('Plot ready for data');
+    }
+    console.log('running afm-plot script');
+    setTimeout('initialisePlot(n, log)', 1000);
 
+    var arduino = require('./js/arduino.js');
+    var lineEmitter = arduino.lineEmitter;
+    lineEmitter.on('line', function(line) {
+      console.log('Plot revceived data, plotting now');
+      drawARow(line, function() {
+        console.log('Data plotted, emittng confirmation.')
+          lineEmitter.emit('plotted');
+      });
+    });
 
+    (function() {
+      Polymer({
+        is: 'afm-plot',
+        properties: { },
+
+        ready: function() {
+        }
+      });
+    })();
+  </script>
 
 </dom-module>
+

@@ -1,6 +1,8 @@
 var serialPort = require('serialport');
 var SerialPort = require('serialport').SerialPort;
 var pManager = require('../js/p_session_manager.js');
+var EventEmitter = require('events').EventEmitter;
+var lineEmitter = new EventEmitter();
 var arduino;
 var connection;
 var COM;
@@ -90,7 +92,7 @@ function receiveData() {
   //each time new data is received
   connection.on('data', function(data){
     data = '' + data;
-    //console.log('New data: ' + data);
+    //console.log('Serial data received: ' + data);
     //check if it contains a semicolon
     var semi = data.search(';');
     // if it doesn't append it to the current data store
@@ -115,14 +117,15 @@ function receiveData() {
         var nextSemi = realData.search(';');
         if (nextSemi != -1) {
           if (nextSemi == realData.length) {
+            console.log('Data line reveived');
             currentLine = realData.slice(0, realData.length);
-            //TO DO:
-            //plotData(currentLine);
-            saveData(currentLine, function() {
-              checkFinished(function() {
-                connection.write('RDY;');
-                readyCount += 1;
-                console.log('Sent ready command ' + readyCount + ', waiting for new line');
+            plotData(currentLine, function() {
+              saveData(currentLine, function() {
+                checkFinished(function() {
+                  connection.write('RDY;');
+                  readyCount += 1;
+                  console.log('Sent ready command ' + readyCount + ', waiting for new line');
+                });
               });
             });
           } else {
@@ -139,16 +142,17 @@ function receiveData() {
       //if there is a semicolon but no start text this is the end of a line of actual data
       else {
         if (semi == startData.length) {
+          console.log('Data line reveived');
           currentLine = currentLine + startData.slice(0, startData.length);
-            //TO DO:
-            //plotData(currentLine);
-            saveData(currentLine, function() {
-              checkFinished(function() {
-                //currentLine used so wipe it
-                currentLine = '';
-                connection.write('RDY;');
-                readyCount += 1;
-                console.log('Sent ready command ' + readyCount + ', waiting for new line');
+            plotData(currentLine, function(){
+              saveData(currentLine, function() {
+                checkFinished(function() {
+                  //currentLine used so wipe it
+                  currentLine = '';
+                  connection.write('RDY;');
+                  readyCount += 1;
+                  console.log('Sent ready command ' + readyCount + ', waiting for new line');
+                });
               });
             });
         } else {
@@ -184,6 +188,25 @@ function checkFinished(cb) {
     }
   }
 }
+
+
+
+function plotData(lineStr, cb){
+  var lineForward = lineStr.split(',').slice(0, lineLength);
+  var lineBack = lineStr.split(',').slice(lineLength, lineStr.length);
+  var line = [];
+  line.push(lineForward);
+  line.push(lineBack);
+  console.log('Attempting to emit data to plot.');
+  lineEmitter.emit('line', line);
+  console.log('Emitted data to plot: ' + line);
+  lineEmitter.once('plotted', function() {
+    console.log('Received plotted confirmation, continuing');
+    cb(); 
+  });
+}
+
+
 
 function saveData(data, cb) {
   var dataArray = data.split(',');
@@ -222,6 +245,7 @@ function endScan() {
 module.exports = {
   findBoard: findBoard,
   checkBoard : checkBoard,
+  lineEmitter : lineEmitter,
   startScan : startScan,
   endScan : endScan
 };

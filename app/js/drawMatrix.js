@@ -320,7 +320,7 @@ function initAll(len){
     drawChart("#rightChart", "right", null);
 }
 var tempIntInter = null;
-function drawARow(dataLine){
+function drawARow(dataLine, cb){
     if(j >= n){
         if(tempint!= null){
             clearInterval(tempint);
@@ -339,6 +339,7 @@ function drawARow(dataLine){
     tempIntInter = setInterval(function(){
         rightDrawByRow();
         clearInterval(tempIntInter);
+        cb();
     },delayTime*n);
 }
 
