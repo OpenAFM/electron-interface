@@ -81,14 +81,14 @@ function initMatrix() {
             })
             .attr("width", x.rangeBand())
             .attr("height", x.rangeBand())
-            .style("fill-opacity", function (d) {
+            .style("fill-shade", function (d) {
                 return 1;
             })
             //.attr("id", function (d) {
             //    return getID(d.x, d.y,"y");
             //})
             .style("fill", function (d) {
-                return "#eee";
+                return "#fff";
             });
     }
 }
@@ -179,7 +179,7 @@ function rightInitMatrix(){
             //    return getID(d.x, d.y,"y");
             //})
             .style("fill", function (d) {
-                return "#eee";
+                return "#fff";
             });
 
     }
@@ -268,7 +268,7 @@ function rightDrawByRow() {
 
 // 左边 - 绘出每行中的每个点，并且停顿一会
 function drawAPointAndSleep() {
-    d3.select(this).transition().style("fill","#9467bd")
+    d3.select(this).transition().style("fill","white")
         .style("fill-opacity", z(randomLinks[i][j])).delay(delayTime*i);
     i++;
 
@@ -276,7 +276,7 @@ function drawAPointAndSleep() {
 
 // 右边 - 绘出每行中的每个点，并且停顿一会
 function rightDrawAPointAndSleep() {
-    d3.select(this).transition().style("fill","#9467bd")
+    d3.select(this).transition().style("fill","white")
         .style("fill-opacity", z(right_randomLinks[right_i][right_j])).delay(delayTime*(n-right_i-1));
     right_i++;
 
@@ -315,9 +315,9 @@ function initAll(len){
     }
     initMatrix();
     rightInitMatrix();
-    drawChart("#leftChart", "left", null);
+    //drawChart("#leftChart", "left", null);
 
-    drawChart("#rightChart", "right", null);
+    //drawChart("#rightChart", "right", null);
 }
 var tempIntInter = null;
 function drawARow(dataLine, cb){

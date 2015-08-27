@@ -18,7 +18,7 @@ var rightsvg;
 
 
 var x = d3.scale.ordinal().rangeBands([0, width]),
-    z = d3.scale.linear().domain([0, 1024]).clamp(true),
+    z = d3.scale.linear().domain([0, 2047]).clamp(true),
     color = d3.scale.category20c().domain(d3.range(20));
 
 
