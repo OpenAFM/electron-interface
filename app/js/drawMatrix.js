@@ -81,7 +81,7 @@ function initMatrix() {
             })
             .attr("width", x.rangeBand())
             .attr("height", x.rangeBand())
-            .style("fill-shade", function (d) {
+            .style("fill-opacity", function (d) {
                 return 1;
             })
             //.attr("id", function (d) {
@@ -179,7 +179,7 @@ function rightInitMatrix(){
             //    return getID(d.x, d.y,"y");
             //})
             .style("fill", function (d) {
-                return "#fff";
+                return "#eee";
             });
 
     }
@@ -198,29 +198,6 @@ function rightInitMatrix(){
 //            .attr("x1", -width);
 
 
-
-
-/*
-   通过方块的id逐个绘制
- */
-//var i = 0, j =0;
-//var int;
-//function drawByPoint(){
-//    //console.log(i+"_"+j);
-//    //d3.select("#"+getID(i,j,"z")).style("fill",color(randomLinks[i][j]));
-//    rightsvg.select("#"+getID(i,j,"y")).style("fill",color(right_randomLinks[i][j]));
-//    i += 1;
-//    if(i  == n){
-//        j += 1;
-//        i = 0;
-//    }
-//    if(j==n){
-//        clearInterval(int);
-//    }
-//
-//}
-//int = setInterval("drawByPoint()",0);
-
 /*
     通过每行的class 逐行绘制
  */
@@ -230,7 +207,6 @@ var j = 0;
 var right_j = 0;
 var RowInt;
 var right_rowIn;
-
 // 每行绘出左边图像
 function leftdrawByRow(){
     i = 0;
@@ -240,11 +216,8 @@ function leftdrawByRow(){
     left_imageRow = j;
     leftTick();
 
+    FinishARow(j);
     j += 1;
-
-    if(j  == n){
-        clearInterval(RowInt);
-    }
 
 }
 
@@ -254,21 +227,17 @@ function rightDrawByRow() {
     rightsvg.selectAll(".cell" + getID(0, right_j,"z")).each(rightDrawAPointAndSleep);
 
     //画出一行的折线
-    left_imageRow = right_j;
+    right_imageRow = right_j;
     rightTick();
 
 
     right_j += 1;
 
-    if(right_j  == n) {
-        clearInterval(right_rowIn);
-    }
-
 }
 
 // 左边 - 绘出每行中的每个点，并且停顿一会
 function drawAPointAndSleep() {
-    d3.select(this).transition().style("fill","white")
+    d3.select(this).transition().style("fill", "white")
         .style("fill-opacity", z(randomLinks[i][j])).delay(delayTime*i);
     i++;
 
@@ -277,7 +246,7 @@ function drawAPointAndSleep() {
 // 右边 - 绘出每行中的每个点，并且停顿一会
 function rightDrawAPointAndSleep() {
     d3.select(this).transition().style("fill","white")
-        .style("fill-opacity", z(right_randomLinks[right_i][right_j])).delay(delayTime*(n-right_i-1));
+        .style("fill-opacity", z(right_randomLinks[n-1-right_i][right_j])).delay(delayTime*(n-1-right_i));
     right_i++;
 
 }
@@ -293,7 +262,7 @@ function initAll(len){
     for(var i =0; i < n; i++){
         randomLinks[i] = [];
         for(var j =0; j < n; j++){
-            randomLinks[i][j] = Math.round(Math.random()*20+1);
+            randomLinks[i][j] = Math.round(Math.random()*2047);
             singlePoint = {};
             singlePoint["source"] = i;
             singlePoint["target"] = j;
@@ -305,7 +274,7 @@ function initAll(len){
     for(var i =0; i < n; i++){
         right_randomLinks[i] = [];
         for(var j =0; j < n; j++){
-            right_randomLinks[i][j] = Math.round(Math.random()*20+1);
+            right_randomLinks[i][j] = Math.round(Math.random()*2047);
             singlePoint = {};
             singlePoint["source"] = i;
             singlePoint["target"] = j;
@@ -315,9 +284,9 @@ function initAll(len){
     }
     initMatrix();
     rightInitMatrix();
-    //drawChart("#leftChart", "left", null);
+    drawChart("#leftChart", "left", null);
 
-    //drawChart("#rightChart", "right", null);
+    drawChart("#rightChart", "right", null);
 }
 var tempIntInter = null;
 function drawARow(dataLine, cb){
@@ -325,7 +294,7 @@ function drawARow(dataLine, cb){
         if(tempint!= null){
             clearInterval(tempint);
         }
-        // alert("matrix is full!");
+        //alert("matrix is full!");
     }
     for(var iter =0; iter < n; iter++) {
         randomLinks[iter][j] = dataLine[0][iter];
@@ -342,5 +311,3 @@ function drawARow(dataLine, cb){
         cb();
     },delayTime*n);
 }
-
-

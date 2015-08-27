@@ -189,11 +189,18 @@ function checkFinished(cb) {
   }
 }
 
-
+//hack to fix reversed colours in plot - send them reversed data!
+function reverseSet(set, max){
+  set.forEach(function(n, i) {
+    set[i] = max - n;
+  });
+}
 
 function plotData(lineStr, cb){
   var lineForward = lineStr.split(',').slice(0, lineLength);
   var lineBack = lineStr.split(',').slice(lineLength, lineStr.length);
+  reverseSet(lineForward, 2047);
+  reverseSet(lineBack, 2047);
   var line = [];
   line.push(lineForward);
   line.push(lineBack);

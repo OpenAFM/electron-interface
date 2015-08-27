@@ -38,10 +38,10 @@ function leftTickAPoint(){
     leftPath
         .attr("d", leftline)
         .attr("transform", null)
-        .transition()
-        .duration(delayTime)
+        //.transition()
+        //.duration(delayTime)
 //                      .attr("transform", "translate(" + x(1) + ",0)")
-    .each("end",leftTickAPoint);
+//    .each("start",leftTickAPoint);
 
 }
 
@@ -54,6 +54,7 @@ function leftTick() {
     left_imageCol = 0;
     leftStartTime = new Date().getTime();
     leftTickAPoint();
+    setInterval("leftTickAPoint()",delayTime)
 
 }
 
@@ -74,7 +75,7 @@ function rightTickAPoint(){
     //console.log(right_imageCol);
     //这一行画完，结束
     for(var iter = right_imageCol; iter < n && iter < Math.round(offset); iter ++) {
-        rightData[n-1-iter] = randomLinks[n-1-iter][right_imageRow];
+        rightData[n-1-iter] = right_randomLinks[iter][right_imageRow];
     }
     right_imageCol = Math.round(offset);
 
@@ -85,7 +86,7 @@ function rightTickAPoint(){
         .transition()
         .duration(delayTime)
 //                      .attr("transform", "translate(" + x(1) + ",0)")
-        .each("end",rightTickAPoint);
+        .each("start",rightTickAPoint);
 
 }
 
@@ -181,5 +182,21 @@ function drawChart(container, direction) {
         rightData = data;
         //rightTick();
     }
+}
+// force to finish row
+function FinishARow(number){
+    for(var iter = right_imageCol; iter < n ; iter ++) {
+        rightData[n-1-iter] = right_randomLinks[iter][right_imageRow];
+    }
+    right_imageCol = n;
+
+    // redraw the line, and slide it to the right
+    rightPath
+        .attr("d", rightline)
+        .attr("transform", null)
+        .transition()
+        .duration(delayTime)
+//                      .attr("transform", "translate(" + x(1) + ",0)")
+
 }
 
