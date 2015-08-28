@@ -1,5 +1,8 @@
 <dom-module id="my-scans">
   <style>
+  #my-button {
+    color: black;
+  }
   </style>
 
   <template>
@@ -9,7 +12,7 @@
         <div id="graph-container"></div>
       </div>
       <div style="float: right;">
-        <paper-drowndown-menu label="Choose a scan">
+        <paper-drowndown-menu label="Previous Scans" selectedItem={{selectedScan}}>
           <paper-menu class="dropdown-content">
             <template is="dom-repeat" items="{{sessions}}" id="sessionList">
               <paper-item>{{item.name}}</paper-item>
@@ -19,6 +22,7 @@
 
         <paper-button id="my-button" on-click="drawPressed" style$="drawButSty">{{drawButton}}</paper-button>
         <paper-button id="my-button" on-click="exportPressed" style$="exportButSty">{{exportButton}}</paper-button>
+        <paper-button id="my-button" on-click="deletePressed" style$="deleteButSty">{{deleteButton}}</paper-button>
 
       </div>
     </div>

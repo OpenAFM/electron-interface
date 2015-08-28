@@ -17,9 +17,10 @@
     <paper-toolbar id="afmHeader">
       <span class="paper-font-title">Device Controls</span>
     </paper-toolbar>
-    <paper-menu class=list>
-
+    <br>
     <paper-button id="my-button" on-click="searchPressed" style$="{{serButSty}}">{{searchButton}}</paper-button>
+    <br><br>
+    <input is="iron-input" prevent-invalid-input allowed-pattern="[A-Za-z0-9-_'!#$&]" value="{{scanName::input}}">
 
     <paper-dropdown-menu label="Scan Size" onselect="sizeSelect">
       <paper-menu class="dropdown-content">
@@ -34,17 +35,16 @@
       </paper-menu>
     </paper-dropdown-menu>
 
-    <paper-dropdown-menu label="Probe Force">
+    <!--paper-dropdown-menu label="Probe Force">
       <paper-menu class="dropdown-content">
         <paper-item>Squishy</paper-item>
         <paper-item>Pushy</paper-item>
         <paper-item>Rammy</paper-item>
       </paper-menu>
-    </paper-dropdown-menu>
+    </paper-dropdown-menu-->
 
     <paper-button id="my-button" on-click="scanPressed" style$="{{scaButSty}}" disabled?={{disabler}}>{{scanButton}}</paper-button>
 
-    <paper-menu>
   </template>
 
   <script src="../js/controls.js"></script> 

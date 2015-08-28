@@ -1,6 +1,6 @@
 var fs = require('fs');
-var sessionType = require('./profilometer_session.js');
-var SESSION_FOLDER = __dirname + '/../sessions/profilometer/';
+var sessionType = require('./afm_session.js');
+var SESSION_FOLDER = __dirname + '/../sessions/afm/';
 var EXTENSION = '.json';
 var SESSIONS = [];
 
@@ -28,6 +28,7 @@ loadAllSessions();
 
 function newSession(name) {
   var session = sessionType.createSession(name);
+  session.dims = [256,256];
   session.startTime = Date.now();
   return session;
 }
@@ -41,8 +42,45 @@ function endSession(session) {
   });  
 }
 
+
+function exportSession(sessionId) {
+  var fileName = sessionId
+  var lineSize = session.dims[0];
+  var data = fs.readFileSync(__dirname + '/' + fileName,'utf8');
+  var file = __dirname + '/' + fileName + '-parsed.txt';
+  fs.writeFile(file, "x,y,z1,z2\n");
+
+  function inputData(file, data, lineSize){
+    var newData = "x,y,z1,z2\n"; var location = 0;
+    for (var x=0; x < lineSize; x++){
+      for (var y = 0; y < lineSize; y++){
+        newData += x + "," + y + "," + data[y + location] + ',' + data[y + lineSize - 1 + location] + '\n'; 
+      }
+      location += lineSize - 1;
+    }
+    fs.writeFile(file,newData)
+  }
+
+  function createNewFile(data, file, cb){
+    var parseData = JSON.parse(data);
+    var id = parseData.id;
+    var zValues = parseData.data;
+    console.log(typeof zValues);
+    fs.writeFile(file, "");
+    cb(file, zValues, lineSize);
+  }
+
+  createNewFile(data, file, inputData, lineSize);
+};
+
+function deleteSession(session) {
+  //maybe fs.unlink or preferable .remove etc
+};
+
 module.exports = {
   newSession: newSession,
   endSession: endSession,
+  exportSession: exportSession,
+  deleteSession: deleteSession,
   sessions: SESSIONS
 };

@@ -40,7 +40,13 @@ var arduino = require('./js/arduino.js');
         type: Boolean,
         value: true,
         notify: true
-      }
+      },
+
+      scanName: {
+        type: String,
+        value: "Scan-Name1",
+        notify: true
+      },
     },              
 
 // define function run when search/connect button pressed
@@ -86,7 +92,7 @@ var arduino = require('./js/arduino.js');
        // and set button to green & 'scannning' temporarily
        // then set to red 'cancel' button
 
-          arduino.startScan('Scan Name', function() {
+          arduino.startScan(this.scanName, function() {
             console.log('Beginning scan...');
           });
 

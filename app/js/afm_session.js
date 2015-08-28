@@ -6,7 +6,8 @@ function Session(name) {
       id: uuid.v4(),
         startTime: null,
           endTime: null,
-            data: []
+            dims: null,
+              data: []
   };
 }
 

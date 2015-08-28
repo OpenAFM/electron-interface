@@ -1,6 +1,11 @@
-var sessionManager = require('./js/p_session_manager.js');
-var green = 'background-color: green';
+var sessionManager = require('./js/afm_session_manager.js');
+
 (function() {
+  var green = 'background-color: green';
+  var red = 'background-color: green';
+  var yellow = 'background-color: green';
+  var grey = 'background-color: green';
+
   Polymer({
     is: 'my-scans',
     properties: {
@@ -13,7 +18,7 @@ var green = 'background-color: green';
 
       drawButSty: {
         type: String,
-        value: green,
+        value: grey,
         notify: true
       },
 
@@ -25,14 +30,38 @@ var green = 'background-color: green';
 
       exportButSty: {
         type: String,
-        value: green,
+        value: grey,
         notify: true
-      }
+      },
+
+      deleteButton: {
+        type: String,
+        value: 'DELETE',
+        notify: true
+      },
+
+      deleteButSty: {
+        type: String,
+        value: grey,
+        notify: true
+      },
+
     },
+
+    drawPressed: function() {},
+
+    exportPressed: function() {
+      //sessionManager.exportSession(sessionId);
+      //takes a session id so will have to load id of session selected in my scans page menu
+    },
+
+    deletePressed: function() {},
+
+
+
 
     ready: function() {
       this.sessions = [];
-      drawScan();
       var that = this;
       (function loop() {
         setTimeout(function () {
@@ -61,6 +90,3 @@ var green = 'background-color: green';
     }
   });
 })();
-
-function drawScan() {
-};

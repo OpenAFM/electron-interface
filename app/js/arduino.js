@@ -1,6 +1,6 @@
 var serialPort = require('serialport');
 var SerialPort = require('serialport').SerialPort;
-var pManager = require('../js/p_session_manager.js');
+var pManager = require('../js/afm_session_manager.js');
 var EventEmitter = require('events').EventEmitter;
 var lineEmitter = new EventEmitter();
 var arduino;
