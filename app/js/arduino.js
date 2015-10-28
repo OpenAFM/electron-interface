@@ -1,27 +1,58 @@
-/* Created by Angus
- To do:
- - have lineLength set by user and saved to session when scan initalised
- - trigger reset when scan finished
- - does currentLine still need to be global?
- */
-
 var serialPort = require('serialport');
 var SerialPort = require('serialport').SerialPort;
-var sessManager = require('../js/afm_session_manager.js');
+var pManager = require('../js/afm_session_manager.js');
 var EventEmitter = require('events').EventEmitter;
-
-var ARDUINO;
+var lineEmitter = new EventEmitter();
+var arduino;
 var connection;
 var COM;
 var currentSession;
 var DONE;
-var readyCount;
 var currentLine = '';
+var readyCount;
 var lineLength = 256;
-var lineEmitter = new EventEmitter();
 
 
-function checkPorts(cb) {
+function findBoard(cb) {
+  var last = false;
+  serialPort.list(function (err, ports) {
+    // check ports on computer
+    ports.forEach(function(port, i) {
+      if (i == ports.length - 1){
+        last = true;
+      }
+ 
+      COM = port.comName;
+      // check to see if arduino plugged in and open connection
+      if ((COM.search('cu.usbmodem') != -1) ||
+          (COM.search('cu.wchusbserial') != -1) ||
+          (COM.search('tty.usbmodem') != -1) ||
+          (COM.search('cu.usbserial') != -1) ||
+          (COM.search('COM')) != -1) {
+        arduino = port;
+        connection = new SerialPort(arduino.comName, {
+          baudrate: 9600
+        }, false);
+
+        connection.open(function (error) {
+          if ( error ) {
+            console.log('failed to open: '+ error);
+          } else {
+            console.log('Arduino ready!');
+            cb(true);
+          }
+        });
+      } else {
+        if (last === true){
+          console.log('Arduino not found!');
+          cb(false);
+        }
+      }
+    });
+  });
+}
+
+function checkBoard(cb) {
   var last = false;
   serialPort.list(function (err, ports) {
     // check ports on computer
@@ -30,63 +61,26 @@ function checkPorts(cb) {
         last = true;
       }
       COM = port.comName;
-      // check to see if arduino on port
-      // this should be made less brittle somehow...
+      // check to see if arduino plugged in and open connection
       if ((COM.search('cu.usbmodem') != -1) ||
           (COM.search('cu.wchusbserial') != -1) ||
           (COM.search('tty.usbmodem') != -1) || 
           (COM.search('cu.usbserial') != -1) ||
           (COM.search('COM') != -1)) {
-        var arduino = port;
-        cb(true, arduino);
+        cb(true);
       } else {
         if (last === true) {
-          cb(false, port);
+          cb(false);
         }
       }
     });
   });
 }
 
-function findBoard(cb) {
-  checkPorts(function(found, arduino) {
-    if (found === true) {
-      ARDUINO = arduino;
-      connection = new SerialPort(ARDUINO.comName, {
-        baudrate: 9600
-      }, false);
-      connection.open(function (error) {
-        if ( error ) {
-          console.log('failed to open: '+ error);
-        } else {
-          console.log('Arduino ready!');
-          cb(true);
-        }
-      });
-    } else {
-      console.log('Arduino not found!');
-      cb(false);
-    }
-  });
-}
-
-function checkBoard(cb) {
-  checkPorts(function(found, arduino) {
-    if (arduino == ARDUINO) {
-      cb(true);
-    } else {
-      cb(false);
-    }
-  });
-}
-
 function startScan(name) {
-  //to do:
-  //receive linelength from ui
-  //and set globally and in session
   DONE = false;
   readyCount = 0;
-  var session = sessManager.newSession(name);
+  var session = pManager.newSession(name);
   currentSession = session;
   console.log('Attempting initialisation.');
   connection.write('GO;', function(){
@@ -94,6 +88,7 @@ function startScan(name) {
   });
 }
 
+/* incomplete rewrite of receiveData and checkFinished
 function receiveData() {
   //each time new serial data is received
   connection.on('data', function(data){
@@ -154,7 +149,6 @@ function receiveData() {
 }
 
 
-
 function readLine(line, cb) {
   //line can be: GO; RDY; DONE; or actual datas
   if (line == 'GO;') {
@@ -181,72 +175,6 @@ function readLine(line, cb) {
   cb()
 }
 
- 
-/*    
-
-
-      //if this startData is RDY or DONE then store anything after the semicolon as afterData
-      else if ((startData == 'RDY') || (startData == 'DONE')) {
-            console.log('Whole data line received');
-            //so append it to the current line, without the semicolon
-            currentLine = afterData.slice(0, afterData.length - 1);
-            // currentLine is now this full line of data, so process it
-            plotData(currentLine, function() {
-              saveData(currentLine, function() {
-                checkFinished(function() {
-                  connection.write('RDY;');
-                  readyCount += 1;
-                  console.log('Sent ready command ' + readyCount + ', waiting for new line');
-                });
-              });
-            });
-          } else {
-            console.log('Start data is corrupted by stray semicolon');
-            console.log('Corrupt data: ' + data);
-            endScan();
-          }
-        }
-        //if there is no semicolon after 'RDY;' or 'DONE;' 
-        //then start a new current line with the data after it
-        else {
-          currentLine = afterData + '';
-        }
-      }
-      //if there is a semicolon but no start text this is the end of a line of actual data
-      else {
-
-        //check the semicolon is at the end, or data must be corrupt.
-        if (semi == startData.length) {
-          console.log('Data line completed');
-          //append this end of data line data to the currentLine
-          currentLine = currentLine + startData.slice(0, startData.length);
-          //currentLine now complete so process it
-            plotData(currentLine, function(){
-              saveData(currentLine, function() {
-                checkFinished(function() {
-                  //currentLine used so wipe it
-                  currentLine = '';
-                  connection.write('RDY;');
-                  readyCount += 1;
-                  console.log('Sent ready command ' + readyCount + ', waiting for new line');
-                });
-              });
-            });
-        } else {
-          console.log('Current line: ' + currentLine + '. Length: ' + currentLine.length);
-          console.log('End data is corrupted by stray semicolon');
-          console.log('Corrupt data: ' + data);
-          endScan();
-        } 
-      }
-    }
-  });
-}*/
-
-
-
-
-
 function checkFinished() {
   if (DONE === true) {
     console.log('All data received, terminating session');
@@ -271,33 +199,127 @@ function checkFinished() {
     }
   }
 }
+*/
+
+function receiveData() {
+  //each time new data is received
+  connection.on('data', function(data){
+    data = '' + data;
+    //console.log('Serial data received: ' + data);
+    //check if it contains a semicolon
+    var semi = data.search(';');
+    // if it doesn't append it to the current data store
+    if (semi == -1) {
+      currentLine = currentLine + data;
+    } 
+    // if it does contain a semicolon...
+    else {
+      //take the data up to the semicolon
+      var startData = data.slice(0, semi);
+      //if this is GO then send a RDY to start the scan
+      if (startData == 'GO') {
+        console.log('Go received');
+        connection.write('RDY;');
+        readyCount += 1;
+        console.log('Scan started.');
+      }
+      //if this is RDY then store anything after the semicolon
+      else if ((startData == 'RDY') || (startData == 'DONE')) {
+        realData = data.slice(semi + 1, data.length);
+        //if this actual data has a semi colon it is a whole line (or corrupt)
+        var nextSemi = realData.search(';');
+        if (nextSemi != -1) {
+          if (nextSemi == realData.length) {
+            console.log('Data line reveived');
+            currentLine = realData.slice(0, realData.length);
+            plotData(currentLine, function() {
+              saveData(currentLine, function() {
+                checkFinished(function() {
+                  connection.write('RDY;');
+                  readyCount += 1;
+                  console.log('Sent ready command ' + readyCount + ', waiting for new line');
+                });
+              });
+            });
+          } else {
+            console.log('Start data is corrupted by stray semicolon');
+            console.log('Corrupt data: ' + data);
+            endScan();
+          }
+        }
+        //otherwise append this data to the current data store
+        else {
+          currentLine = currentLine + realData;
+        }
+      }
+      //if there is a semicolon but no start text this is the end of a line of actual data
+      else {
+        if (semi == startData.length) {
+          console.log('Data line reveived');
+          currentLine = currentLine + startData.slice(0, startData.length);
+            plotData(currentLine, function(){
+              saveData(currentLine, function() {
+                checkFinished(function() {
+                  //currentLine used so wipe it
+                  currentLine = '';
+                  connection.write('RDY;');
+                  readyCount += 1;
+                  console.log('Sent ready command ' + readyCount + ', waiting for new line');
+                });
+              });
+            });
+        } else {
+          console.log('Current line: ' + currentLine + '. Length: ' + currentLine.length);
+          console.log('End data is corrupted by stray semicolon');
+          console.log('Corrupt data: ' + data);
+          endScan();
+        } 
+      }
+    }
+  });
+}
+
+function checkFinished(cb) {
+  if (DONE === true) {
+    console.log('All data received, terminating session');
+    if (currentSession.data.length == lineLength * lineLength * 2) {
+      console.log('Image dataset looks good.');
+    } else {
+      console.log('Image dataset length does noot look correct. Length: ' + currentSession.data.length);
+    }
+    endScan();
+  } else{
+    //if that was the penultimate line
+    if (readyCount == 255) {
+      console.log('This was the penultimate line, preparing to terminate session');
+      connection.write('DONE;');
+      DONE = true;
+      cb();
+    } else {
+      console.log('Data processed, proceeding');
+      cb();
+    }
+  }
+}
 
 //hack to fix reversed colours in plot - send them reversed data!
 function reverseSet(set, max){
   set.forEach(function(n, i) {
-    if (typeof n != 'number') {
-      set[i] = 404;
-      console.log('N was not a number');
-    }
-    set[i] = max - n;
+    var cont = (((n - 1000) * 11) + 1000)
+    //change n to cont below and uncomment to scale here
+    set[i] = max - cont;
   });
 }
 
 function plotData(lineStr, cb){
   var lineForward = lineStr.split(',').slice(0, lineLength);
-  console.log('I am an: ' + (typeof lineForward) + "Can't you tell: " + lineForward);
   var lineBack = lineStr.split(',').slice(lineLength, lineStr.length);
-  if (lineForward.length == 512) {
-    reverseSet(lineForward, 2047);
-  } else { console.log("Forward scan data length incorrect: " + lineForward.length);}
-  if (lineBack.length == 512) {
-    reverseSet(lineBack, 2047);
-  } else { console.log("Forward scan data length incorrect: " + lineBack.length);}
-  var line = [[lineForward],[lineBack]];
-  //line.push(lineForward);
-  //line.push(lineBack);
+  reverseSet(lineForward, 2047);
+  reverseSet(lineBack, 2047);
+  var line = [];
+  line.push(lineForward);
+  line.push(lineBack);
   console.log('Attempting to emit data to plot.');
-  console.log('Emitting: ' + line);
   lineEmitter.emit('line', line);
   console.log('Emitted data to plot: ' + line);
   lineEmitter.once('plotted', function() {
@@ -305,6 +327,8 @@ function plotData(lineStr, cb){
     cb(); 
   });
 }
+
+
 
 function saveData(data, cb) {
   var dataArray = data.split(',');
@@ -321,6 +345,9 @@ function saveData(data, cb) {
   } 
   if (dataArray.length == lineLength * 2) {
     console.log('Data length correct!');
+    // remove the semi colon at the end
+    // actually weve already done that?
+    //dataArray = dataArray.slice(0, dataArray.length - 1);
     appendCb(dataArray, cb);
   } else {
     console.log('Error: Data length incorrect, cancelling scan! Data' + dataArray);
@@ -331,18 +358,21 @@ function saveData(data, cb) {
 function endScan() {
   //TO DO:
   //reset the scan button to allow new scan
-  //
-  sessManager.endSession(currentSession, function() {
+  // this maybe wont work if you cancel on the last line... but whos gonna do that
+  if (DONE == false) {
+    connection.write('DONE;');
+  }
+  connection.close();
+  lineEmitter.emit('end');
+  pManager.endSession(currentSession, function() {
     currentSession = null;
   });
 }
 
-
-//Allow export of arduino interface functions and line data emitter
 module.exports = {
   findBoard: findBoard,
   checkBoard : checkBoard,
+  lineEmitter : lineEmitter,
   startScan : startScan,
-  endScan : endScan,
-  lineEmitter : lineEmitter
+  endScan : endScan
 };
