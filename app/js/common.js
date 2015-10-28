@@ -7,8 +7,8 @@ var delayTime = 1,
     n = 128;
 
 var margin = {top: 35, right: 0, bottom: 30, left: 80};
-var width = 360;
-var height = 360;
+var width = 256;
+var height = 256;
 var d = new Date();
 var lastTime = d.getTime();
 var leftStartTime = 0;

@@ -88,7 +88,7 @@ function initMatrix() {
             //    return getID(d.x, d.y,"y");
             //})
             .style("fill", function (d) {
-                return "#fff";
+                return "#eee";
             });
     }
 }
@@ -262,7 +262,7 @@ function initAll(len){
     for(var i =0; i < n; i++){
         randomLinks[i] = [];
         for(var j =0; j < n; j++){
-            randomLinks[i][j] = Math.round(Math.random()*2047);
+            randomLinks[i][j] = 1;
             singlePoint = {};
             singlePoint["source"] = i;
             singlePoint["target"] = j;
@@ -274,7 +274,7 @@ function initAll(len){
     for(var i =0; i < n; i++){
         right_randomLinks[i] = [];
         for(var j =0; j < n; j++){
-            right_randomLinks[i][j] = Math.round(Math.random()*2047);
+            right_randomLinks[i][j] = 1;
             singlePoint = {};
             singlePoint["source"] = i;
             singlePoint["target"] = j;
@@ -297,8 +297,8 @@ function drawARow(dataLine, cb){
         //alert("matrix is full!");
     }
     for(var iter =0; iter < n; iter++) {
-        randomLinks[iter][j] = dataLine[0][iter];
-        right_randomLinks[iter][j] = dataLine[1][iter];
+        randomLinks[iter][j] = dataLine[0][iter] + 1;
+        right_randomLinks[iter][j] = dataLine[1][iter] + 1;
     }
     // 画出一行的方块
     leftdrawByRow();
