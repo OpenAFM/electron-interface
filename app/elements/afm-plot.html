@@ -72,7 +72,7 @@
     var arduino = require('./js/arduino.js');
     var lineEmitter = arduino.lineEmitter;
     lineEmitter.on('line', function(line) {
-      console.log('Plot revceived data, plotting now');
+      console.log('Plot received data: ' + line + ' Plotting now');
       drawARow(line, function() {
         console.log('Data plotted, emittng confirmation.')
           lineEmitter.emit('plotted');
