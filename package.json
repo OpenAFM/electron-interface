@@ -9,8 +9,7 @@
   "author": "Angus Whitehead, Jenn Thomas, Yuze",
   "license": "MIT",
   "devDependencies": {
-    "electron-prebuilt": "0.30.6",
-    "electron-rebuild": "^0.2.5"
+    "electron-prebuilt": "0.30.6"
   },
   "dependencies": {
     "serialport": "file:app/modules/my-serialport",
