@@ -1,2 +1,3 @@
-node_modules
-app/sessions
+node_modules/
+app/sessions/
+.DS_Store
