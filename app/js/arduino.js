@@ -307,7 +307,7 @@ function reverseSet(set, max){
   set.forEach(function(n, i) {
     var cont = (((n - 1000) * 11) + 1000)
     //change n to cont below and uncomment to scale here
-    set[i] = max - cont;
+    set[i] = max - n;
   });
 }
 
@@ -321,7 +321,7 @@ function plotData(lineStr, cb){
   line.push(lineBack);
   console.log('Attempting to emit data to plot.');
   lineEmitter.emit('line', line);
-  console.log('Emitted data to plot: ' + line);
+  //console.log('Emitted data to plot: ' + line);
   lineEmitter.once('plotted', function() {
     console.log('Received plotted confirmation, continuing');
     cb(); 
