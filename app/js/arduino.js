@@ -2,7 +2,7 @@ var serialPort = require('serialport');
 var SerialPort = require('serialport').SerialPort;
 var pManager = require('../js/afm_session_manager.js');
 var EventEmitter = require('events').EventEmitter;
-var lineEmitter = new EventEmitter();
+var emitter = new EventEmitter();
 var arduino;
 var connection;
 var COM;
@@ -320,9 +320,9 @@ function plotData(lineStr, cb){
   line.push(lineForward);
   line.push(lineBack);
   console.log('Attempting to emit data to plot.');
-  lineEmitter.emit('line', line);
+  emitter.emit('line', line);
   //console.log('Emitted data to plot: ' + line);
-  lineEmitter.once('plotted', function() {
+  emitter.once('plotted', function() {
     console.log('Received plotted confirmation, continuing');
     cb(); 
   });
@@ -363,16 +363,23 @@ function endScan() {
     connection.write('DONE;');
   }
   connection.close();
-  lineEmitter.emit('end');
+  emitter.emit('end');
   pManager.endSession(currentSession, function() {
     currentSession = null;
+
+    //clear the plots
+    ['leftImage', 'rightImage', 'leftChart', 'rightChart'].forEach(function(id) {
+      document.getElementById(id).innerHTML = '';
+    });
+    
+    emitter.emit('clearPlots');
   });
 }
 
 module.exports = {
   findBoard: findBoard,
   checkBoard : checkBoard,
-  lineEmitter : lineEmitter,
+  emitter : emitter,
   startScan : startScan,
   endScan : endScan
 };

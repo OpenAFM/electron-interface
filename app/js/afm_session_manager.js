@@ -33,12 +33,13 @@ function newSession(name) {
   return session;
 }
 
-function endSession(session) {
+function endSession(session, cb) {
   session.endTime = Date.now();
   fs.writeFile(SESSION_FOLDER + session.id, JSON.stringify(session), function(err) {
     if (err) { throw err; }
     console.log("Session Saved.");
     loadAllSessions();
+    cb();
   });  
 }
 

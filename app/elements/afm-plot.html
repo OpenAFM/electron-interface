@@ -60,7 +60,7 @@
     function initialisePlot(n, cb) {
       console.log('Initialising Plot');
       initAll(n, function() {
-        cb();
+        if (cb) cb();
       });
     }
     var log = function() {
@@ -70,13 +70,19 @@
     setTimeout('initialisePlot(n, log)', 1000);
 
     var arduino = require('./js/arduino.js');
-    var lineEmitter = arduino.lineEmitter;
-    lineEmitter.on('line', function(line) {
+    var emitter = arduino.emitter;
+
+    emitter.on('line', function(line) {
       //console.log('Plot received data: ' + line + ' Plotting now');
       drawARow(line, function() {
         console.log('Data plotted, emittng confirmation.')
-          lineEmitter.emit('plotted');
+          emitter.emit('plotted');
       });
+    });
+
+    emitter.on('clearPlots', function() {
+      var n = 256;
+      initialisePlot(n);
     });
 
     (function() {
