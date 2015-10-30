@@ -22,10 +22,10 @@
     <br><br>
     <input is="iron-input" prevent-invalid-input allowed-pattern="[A-Za-z0-9-_'!#$&]" value="{{scanName::input}}">
 
-    <paper-dropdown-menu label="Scan Size" onselect="sizeSelect">
+    <paper-dropdown-menu label="Scan Size" on-iron-select="sizeSelect">
       <paper-menu class="dropdown-content">
-        <paper-item>256px x 256px</paper-item>
-        <paper-item>512px x 512px</paper-item>
+        <paper-item id="256">256px x 256px</paper-item>
+        <paper-item id="512">512px x 512px</paper-item>
       </paper-menu>
     </paper-dropdown-menu>
 

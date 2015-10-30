@@ -110,6 +110,12 @@ var arduino = require('./js/arduino.js');
       }
     },
 
+    sizeSelect: function(e) {
+      var size = parseInt(e.detail.item.id, 10);
+      console.log(size);
+    },
+
+
     // this function runs as soon as afm-controls loaded
     ready: function() {
       var that = this;
