@@ -108,7 +108,7 @@ var arduino = require('./js/arduino.js');
           // if scan ongoing then button acts as cancel,
           // ending scan session and resetting button to 'scan'
           this.scanButton = 'SAVING';
-          this.scanButton = yellow;
+          this.scaButSty = yellow;
           arduino.endScan()
           setTimeout(reset, 2500, this);
         }
