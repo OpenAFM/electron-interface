@@ -1,4 +1,5 @@
 var arduino = require('./js/arduino.js');
+var emitter = arduino.emitter;
 
 (function() {
   var green = 'background-color: green';
@@ -124,6 +125,11 @@ var arduino = require('./js/arduino.js');
     // this function runs as soon as afm-controls loaded
     ready: function() {
       var that = this;
+      
+      emitter.on('end', function() {
+        that.scanButton = 'SCAN';
+        that.scaButSty = green;
+      }, that);
 
       function reconnect(that) {
         that.searchButton = 'CONNECT';
