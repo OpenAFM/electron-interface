@@ -1,4 +1,5 @@
 var arduino = require('./js/arduino.js');
+var emitter = arduino.emitter;
 
 (function() {
   var green = 'background-color: green';
@@ -86,6 +87,10 @@ var arduino = require('./js/arduino.js');
         that.scanButton = 'CANCEL';
         that.scaButSty = red;
       }
+      function reset(that) {
+        that.scanButton = 'SCAN';
+        that.scaButSty = green;
+      }
      if (BOARD === true) {
         if (this.scanButton == 'SCAN') {
        // if board connected and scan not ongoing begin scan
@@ -103,9 +108,10 @@ var arduino = require('./js/arduino.js');
         } else {
           // if scan ongoing then button acts as cancel,
           // ending scan session and resetting button to 'scan'
-          arduino.endScan();
-          this.scanButton = 'SCAN';
-          this.scaButSty = green;
+          this.scanButton = 'SAVING';
+          this.scaButSty = yellow;
+          arduino.endScan()
+          setTimeout(reset, 2500, this);
         }
       }
     },
@@ -119,6 +125,11 @@ var arduino = require('./js/arduino.js');
     // this function runs as soon as afm-controls loaded
     ready: function() {
       var that = this;
+      
+      emitter.on('end', function() {
+        that.scanButton = 'SCAN';
+        that.scaButSty = green;
+      }, that);
 
       function reconnect(that) {
         that.searchButton = 'CONNECT';
