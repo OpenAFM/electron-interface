@@ -4,6 +4,7 @@ var SESSION_FOLDER = __dirname + '/../sessions/afm/';
 var EXTENSION = '.json';
 var SESSIONS = [];
 
+
 function loadAllSessions() {
   fs.readdir(SESSION_FOLDER, function(err, files) {
     if (err) { throw err; }
@@ -23,6 +24,7 @@ function loadAllSessions() {
     });
   });
 }
+
 
 loadAllSessions();
 

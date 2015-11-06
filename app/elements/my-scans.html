@@ -6,30 +6,28 @@
   </style>
 
   <template>
-    <h2 class="paper-font-display2">Graph</h2>
     <div style="width: 100%; overflow: hidden;">
       <div style="width: 80%; float: left;">
         <div id="graph-container"></div>
       </div>
       <div style="float: right;">
-        <paper-drowndown-menu label="Previous Scans" selectedItem={{selectedScan}}>
-          <paper-menu class="dropdown-content">
-            <template is="dom-repeat" items="{{sessions}}" id="sessionList">
+            
+        <paper-dropdown-menu label="Previous Scans">
+          <paper-menu class="dropdown-content" selected="{{scanSelection}}" on-core-select="scanSelect">
+            <template is="dom-repeat" items="{{sessions}}">
               <paper-item>{{item.name}}</paper-item>
             </template>
           </paper-menu>
         </paper-dropdown-menu>
 
-        <paper-button id="my-button" on-click="drawPressed" style$="drawButSty">{{drawButton}}</paper-button>
-        <paper-button id="my-button" on-click="exportPressed" style$="exportButSty">{{exportButton}}</paper-button>
-        <paper-button id="my-button" on-click="deletePressed" style$="deleteButSty">{{deleteButton}}</paper-button>
+        <br>
+        <paper-button id="my-button" on-click="drawPressed" style$="{{drawButSty}}">{{drawButton}}</paper-button>
+        <paper-button id="my-button" on-click="exportPressed" style$="{{exportButSty}}">{{exportButton}}</paper-button>
+        <paper-button id="my-button" on-click="deletePressed" style$="{{deleteButSty}}">{{deleteButton}}</paper-button>
 
       </div>
     </div>
-
-
   </template>
-
   <script src="../js/my-scans.js"></script>
 
 </dom-module>
