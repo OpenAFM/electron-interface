@@ -89,14 +89,13 @@ var emitter = arduino.emitter;
       }
       function reset(that) {
         that.scanButton = 'SCAN';
-        that.scaButSty = green;
+        that.scaButSty = yellow;
       }
      if (BOARD === true) {
         if (this.scanButton == 'SCAN') {
        // if board connected and scan not ongoing begin scan
        // and set button to green & 'scannning' temporarily
        // then set to red 'cancel' button
-
           arduino.startScan(this.scanName, function() {
             console.log('Beginning scan...');
           });
@@ -104,13 +103,14 @@ var emitter = arduino.emitter;
           SCANNING = true;
           this.scanButton = 'SCANNING';
           this.scaButSty = green;
+
           setTimeout(allowCancel, 2500, this);
         } else {
           // if scan ongoing then button acts as cancel,
           // ending scan session and resetting button to 'scan'
+          arduino.endScan()
           this.scanButton = 'SAVING';
           this.scaButSty = yellow;
-          arduino.endScan()
           setTimeout(reset, 2500, this);
         }
       }
