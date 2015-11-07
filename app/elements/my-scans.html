@@ -13,9 +13,9 @@
       <div style="float: right;">
             
         <paper-dropdown-menu label="Previous Scans">
-          <paper-menu class="dropdown-content" selected="{{scanSelection}}" on-core-select="scanSelect">
+          <paper-menu class="dropdown-content" on-iron-select="scanSelect">
             <template is="dom-repeat" items="{{sessions}}">
-              <paper-item>{{item.name}}</paper-item>
+            <paper-item id={{item.id}}>{{item.name}}</paper-item>
             </template>
           </paper-menu>
         </paper-dropdown-menu>
@@ -29,7 +29,6 @@
     </div>
   </template>
   <script src="../js/my-scans.js"></script>
-
 </dom-module>
   
 

@@ -5,6 +5,7 @@ var sessionManager = require('./js/afm_session_manager.js');
   var red = 'background-color: green';
   var yellow = 'background-color: green';
   var grey = 'background-color: green';
+  var SELECTED_SCAN;
 
   Polymer({
     is: 'my-scans',
@@ -46,6 +47,13 @@ var sessionManager = require('./js/afm_session_manager.js');
         notify: true
       },
 
+    },
+
+    scanSelect: function(e) {
+      console.log('triggered scan select function');
+      SELECTED_SCAN = e;
+      console.log(e.detail.item.id);
+      console.log('you saw e right?');
     },
 
     drawPressed: function() {},
