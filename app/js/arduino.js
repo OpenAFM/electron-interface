@@ -80,6 +80,12 @@ function checkBoard(cb) {
 }
 
 function startScan(name) {
+  //clear the plots
+  ['leftImage', 'rightImage', 'leftChart', 'rightChart'].forEach(function(id) {
+    document.getElementById(id).innerHTML = '';
+  });
+  emitter.emit('clearPlots');
+  
   STOP = false;
   DONE = false;
   readyCount = 0;
@@ -376,11 +382,6 @@ function endScan() {
     });
   }
 
-  //clear the plots
-  ['leftImage', 'rightImage', 'leftChart', 'rightChart'].forEach(function(id) {
-    document.getElementById(id).innerHTML = '';
-  });
-  emitter.emit('clearPlots');
 }
 
 module.exports = {
