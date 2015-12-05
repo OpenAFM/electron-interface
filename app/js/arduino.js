@@ -108,14 +108,6 @@ function startScan(name) {
   });
 }
 
-/* incomplete rewrite of receiveData and checkFinished
- * because sometimes with non arduino micros, i will try to plot 'RDY'
- * instead of a line of data, using the current parser
- * ===========================================
- * receiveData gets connections and sends data to parseData
- * parseData gets data, forms currentLine, then send line to readLine
- * currentLine includes the closing semicolon
-*/
 function receiveData() {
   //each time new serial data is received
   connection.on('data', function(data){
@@ -215,117 +207,6 @@ function checkFinished() {
     }
   }
 }
-//=========================================
-//old version below, buggy but meh (that RDY plotting bug, solved by above)
-/*
-function receiveData() {
-  //each time new data is received
-  receiveCount += 1;
-  if (receiveCount > 1) {
-    return;
-  } else {
-    connection.on('data', function(data){
-      if (STOP === false) {
-        data = '' + data;
-        //console.log('Serial data received: ' + data);
-        //check if it contains a semicolon
-        var semi = data.search(';');
-        // if it doesn't append it to the current data store
-        if (semi == -1) {
-          currentLine = currentLine + data;
-        } 
-        // if it does contain a semicolon...
-        else {
-          //take the data up to the semicolon
-          var startData = data.slice(0, semi);
-          //if this is GO then send a RDY to start the scan
-          if (startData == 'GO') {
-            console.log('Go received');
-            connection.write('RDY;');
-            readyCount += 1;
-            console.log('Scan started.');
-          }
-          //if this is RDY then store anything after the semicolon
-          else if ((startData == 'RDY') || (startData == 'DONE')) {
-            realData = data.slice(semi + 1, data.length);
-            //if this actual data has a semi colon it is a whole line (or corrupt)
-            var nextSemi = realData.search(';');
-            if (nextSemi != -1) {
-              if (nextSemi == realData.length) {
-                console.log('Data line reveived');
-                currentLine = realData.slice(0, realData.length);
-                plotData(currentLine, function() {
-                  saveData(currentLine, function() {
-                    checkFinished(function() {
-                      connection.write('RDY;');
-                      readyCount += 1;
-                      console.log('Sent ready command ' + readyCount + ', waiting for new line');
-                    });
-                  });
-                });
-              } else {
-                console.log('Start data is corrupted by stray semicolon');
-                console.log('Corrupt data: ' + data);
-                endScan();
-              }
-            }
-            //otherwise append this data to the current data store
-            else {
-              currentLine = currentLine + realData;
-            }
-          }
-          //if there is a semicolon but no start text this is the end of a line of actual data
-          else {
-            if (semi == startData.length) {
-              console.log('Data line reveived');
-              currentLine = currentLine + startData.slice(0, startData.length);
-              plotData(currentLine, function(){
-                saveData(currentLine, function() {
-                  checkFinished(function() {
-                    //currentLine used so wipe it
-                    currentLine = '';
-                    connection.write('RDY;');
-                    readyCount += 1;
-                    console.log('Sent ready command ' + readyCount + ', waiting for new line');
-                  });
-                });
-              });
-            } else {
-              console.log('Current line: ' + currentLine + '. Length: ' + currentLine.length);
-              console.log('End data is corrupted by stray semicolon');
-              console.log('Corrupt data: ' + data);
-              endScan();
-            } 
-          }
-        }
-      }
-    });
-  }
-}
-
-function checkFinished(cb) {
-  if (DONE === true) {
-    console.log('All data received, terminating session');
-    if (currentSession.data.length == lineLength * lineLength * 2) {
-      console.log('Image dataset looks good.');
-    } else {
-      console.log('Image dataset length does noot look correct. Length: ' + currentSession.data.length);
-    }
-    endScan();
-  } else{
-    //if that was the penultimate line
-    if (readyCount == 255) {
-      console.log('This was the penultimate line, preparing to terminate session');
-      connection.write('DONE;');
-      DONE = true;
-      cb();
-    } else {
-      console.log('Data processed, proceeding');
-      cb();
-    }
-  }
-}
-*/
 
 function setContrast(scale, offset){
   scale_factor = parseFloat(scale);
