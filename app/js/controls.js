@@ -47,7 +47,7 @@ var emitter = arduino.emitter;
         type: String,
         value: "Scan-Name1",
         notify: true
-      },
+      }
     },              
 
 // define function run when search/connect button pressed

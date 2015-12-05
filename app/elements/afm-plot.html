@@ -1,20 +1,15 @@
 <dom-module id="afm-plot">
-
   <style>
     .background {
       fill: #fff;
     }
-
     line {
       stroke: #fff;
     }
-
     text.active {
       fill: red;
     }
-
   </style>
-
 
   <link href="../styles/bootstrap.min.css" rel="stylesheet">
   <link href="../styles/draw.css" rel="stylesheet">
@@ -22,7 +17,6 @@
   <template>
     <!--h2 class="paper-font-display2" style="text-align:center">Live AFM Scan Preview</h2-->
       <div class="container">
-
             <!--左边 normal 图像-->
             <div class="col-md-6" id="leftImage"></div>
 
@@ -36,9 +30,16 @@
 
              <!--右边 当前输入信号-->
             <div class="col-md-6">
-                <div id="rightChart" style="margin:0 auto; width:420px"></div>
+              <div id="rightChart" style="margin:0 auto; width:420px"></div>
             </div>
-
+            <br>
+            <div id="contrast">
+              Scale factor:
+              <input is="iron-input" prevent-invalid-input allowed-pattern="[0-9.-]" value="{{scaleFactor::input}}">
+              Offset:
+              <input is="iron-input" prevent-invalid-input allowed-pattern="[0-9.-]" value="{{offset::input}}">
+              <paper-button id="set-contrast" on-click="setContrast" style="background-color: green">{{contrastButton}}</paper-button>
+            </div>
       </div>
   
   </template>
@@ -54,8 +55,10 @@
   <!-- 绘出 Image & Retrace Image -->
   <script src="../js/drawMatrix.js"></script>
 
+  <script src="../js/plotter.js"></script>
+
   <!-- main control script -->
-  <script>
+  <!--script>
     var n = 256;
     function initialisePlot(n, cb) {
       console.log('Initialising Plot');
@@ -85,16 +88,40 @@
       initialisePlot(n);
     });
 
+    var arduino = require('./js/arduino.js');
+  
     (function() {
       Polymer({
         is: 'afm-plot',
-        properties: { },
+        properties: {
+          scaleFactor: {
+            type: String,
+            value: '1',
+            notify: true
+          },
+
+          offset: {
+            type: String,
+            value: '0',
+            notify: true
+          },
+
+          contrastButton: {
+            type: String,
+            value: 'GO',
+            notify: true
+          },
+        },
+        
+        setContrast: function() {
+          arduino.contrast(this.scaleFactor, this.offset)  
+        },
 
         ready: function() {
         }
       });
     })();
-  </script>
+  </script-->
 
 </dom-module>
 

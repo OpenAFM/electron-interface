@@ -13,6 +13,8 @@ var readyCount;
 var lineLength = 256;
 var STOP = true;
 var receiveCount = 0;
+var scale_factor = 1;
+var scale_offset = 0;
 
 function findBoard(cb) {
   var last = false;
@@ -98,65 +100,62 @@ function startScan(name) {
 }
 
 /* incomplete rewrite of receiveData and checkFinished
+ * because sometimes with non arduino micros, i will try to plot 'RDY'
+ * instead of a line of data, using the current parser
+ * ===========================================
+ * receiveData gets connections and sends data to parseData
+ * parseData gets data, forms currentLine, then send line to readLine
+ * currentLine includes the closing semicolon
+ *
+ *
+ * THIS BASICALLY WORKS I THINK BUT SOMETHING WRONG WITH THE LAST DATA POINT
+*/
 function receiveData() {
   //each time new serial data is received
   connection.on('data', function(data){
     //console.log('Serial data received: ' + data);
     //take data as string
     data = '' + data;
-
-    //semi is the position of the first semi colon in data (-1 if none)
-    var semi = data.search(';');
-
-    // if there is no semi colon in data
-    if (semi == -1) {
-      //console.log("No semicolon in data");
-      // data is just part of a message
-      //add it to the currently recording line 
-      currentLine = currentLine + data;
-    }
-
-    // if data does contain a semicolon 
-    else {
-      var len = data.length;
-      //if the semi is at the end of data
-      if (semi == len - 1) {
-        //data is the end of a message 
-        //so add it to line and read it
-        currentLine = currentLine + data  
-        readLine(currentLine, function() {
-          currentLine = '';
-        });
-      } else {
-        //take the upto (including) and after the semi
-        var startData = data.slice(0, semi + 1);
-        var endData = data.slice(semi + 1, len);
-        //add the first part to the line and read it
-        currentLine = currentLine + startData;
-        readLine(currentLine, function() {
-          var nextSemi = endData.search(';');
-          //if no more semis in data
-          if (nextSemi == -1) {
-            //data is a whole message and just part of the next
-            //so start a new line with that part
-            currentLine = endData
-          }
-          //otherwise endData should be a complete message
-          else if (nextSemi == endData.length - 1) {
-            //make a line of it and read it
-            currentLine = endData;
-            readLine(currentLine, function() {
-              currentLine = '';
-            });
-          } else {
-            console.log('Stray semi-colon, data corrupt!');
-          }
-        });
-      }
-    }
+    parseData(data);
   });
 }
 
+function parseData(data) { 
+  //semi is the position of the first semi colon in data (-1 if none)
+  var semi = data.search(';');
+
+  // if there is no semi colon in data
+  if (semi == -1) {
+    //console.log("No semicolon in data");
+    // data is just part of a message
+    //add it to the currently recording line 
+    currentLine = currentLine + data;
+  }
+  // if data does contain a semicolon 
+  else {
+    var len = data.length;
+    //if the first semi is at the end of data
+    if (semi == len - 1) {
+      //data is the end of a message 
+      //so add it to line and read it
+      currentLine = currentLine + data  
+      readLine(currentLine, function() {
+        currentLine = '';
+      });
+    } 
+    else {
+      //take upto(including) and after the semi
+      var startData = data.slice(0, semi + 1);
+      var endData = data.slice(semi + 1, len);
+      //add the first part to the line and read it
+      currentLine = currentLine + startData;
+      readLine(currentLine, function() {
+        currentLine = '';
+        parseData(endData);
+      });          
+    }
+  }
+}
 
 function readLine(line, cb) {
   //line can be: GO; RDY; DONE; or actual datas
@@ -174,6 +173,8 @@ function readLine(line, cb) {
   } else {
     //this is a line of data. maybe check its length?
     //then plot and save it
+    //actually lets drop that semi
+    line = line
     plotData(line, function() {
       saveData(line, function() {
         // either bring the scan to an end or continue it
@@ -208,8 +209,9 @@ function checkFinished() {
     }
   }
 }
-*/
-
+//=========================================
+//old version below, buggy but meh
+/*
 function receiveData() {
   //each time new data is received
   receiveCount += 1;
@@ -317,14 +319,26 @@ function checkFinished(cb) {
     }
   }
 }
+*/
+
+function setContrast(scale, offset){
+  scale_factor = parseFloat(scale);
+  scale_offset = parseFloat(offset);
+  console.log('Contrast set.');
+}
 
 //hack to fix reversed colours in plot - send them reversed data!
 function reverseSet(set, max){
+  console.log(set)
   set.forEach(function(n, i) {
-    var cont = (((n - 1000) * 11) + 1000)
-    //change n to cont below and uncomment to scale here
-    set[i] = max - n;
+    set[i] = ((scale_factor * (max - n)) + scale_offset);
+    //this is only necessary because of parsing mess
+    //...top science
+    if (isNaN(set[i])) {
+      set[i] = set[i-1]
+    }
   });
+  console.log('SF: ', scale_factor, 'Of: ', scale_offset, 'Result: ', set.slice(1,5))
 }
 
 function plotData(lineStr, cb){
@@ -389,5 +403,6 @@ module.exports = {
   checkBoard : checkBoard,
   emitter : emitter,
   startScan : startScan,
-  endScan : endScan
+  endScan : endScan,
+  setContrast: setContrast
 };
