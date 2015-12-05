@@ -1,3 +1,12 @@
+/*
+There is a bug where we attempt to save data to session after calling endscan 
+and thus setting session to null. this has been introduced by switching to new
+parser. we need to save the final line before killing the sesh.
+
+
+*/
+
+
 var serialPort = require('serialport');
 var SerialPort = require('serialport').SerialPort;
 var pManager = require('../js/afm_session_manager.js');
@@ -106,9 +115,6 @@ function startScan(name) {
  * receiveData gets connections and sends data to parseData
  * parseData gets data, forms currentLine, then send line to readLine
  * currentLine includes the closing semicolon
- *
- *
- * THIS BASICALLY WORKS I THINK BUT SOMETHING WRONG WITH THE LAST DATA POINT
 */
 function receiveData() {
   //each time new serial data is received
@@ -174,7 +180,7 @@ function readLine(line, cb) {
     //this is a line of data. maybe check its length?
     //then plot and save it
     //actually lets drop that semi
-    line = line
+    line = line.slice(0, (line.length - 1))
     plotData(line, function() {
       saveData(line, function() {
         // either bring the scan to an end or continue it
@@ -210,7 +216,7 @@ function checkFinished() {
   }
 }
 //=========================================
-//old version below, buggy but meh
+//old version below, buggy but meh (that RDY plotting bug, solved by above)
 /*
 function receiveData() {
   //each time new data is received
@@ -328,14 +334,14 @@ function setContrast(scale, offset){
 }
 
 //hack to fix reversed colours in plot - send them reversed data!
-function reverseSet(set, max){
+function reverseAndScale(set, max){
   console.log(set)
   set.forEach(function(n, i) {
     set[i] = ((scale_factor * (max - n)) + scale_offset);
-    //this is only necessary because of parsing mess
-    //...top science
+    //if some data is no good 
     if (isNaN(set[i])) {
-      set[i] = set[i-1]
+      console.log('Bad datapoint at pos ', i, ': ', set[i])
+      set[i] = 666
     }
   });
   console.log('SF: ', scale_factor, 'Of: ', scale_offset, 'Result: ', set.slice(1,5))
@@ -344,8 +350,8 @@ function reverseSet(set, max){
 function plotData(lineStr, cb){
   var lineForward = lineStr.split(',').slice(0, lineLength);
   var lineBack = lineStr.split(',').slice(lineLength, lineStr.length);
-  reverseSet(lineForward, 2047);
-  reverseSet(lineBack, 2047);
+  reverseAndScale(lineForward, 2047);
+  reverseAndScale(lineBack, 2047);
   var line = [];
   line.push(lineForward);
   line.push(lineBack);
@@ -366,7 +372,7 @@ function saveData(data, cb) {
     dataArray.forEach(function(point) {
       if (parseInt(point, 10) === null) {
         console.log('Got null datapoint: ' + point);
-        currentSession.data.push(0);
+        currentSession.data.push(666);
       } else {
         currentSession.data.push(parseInt(point, 10));
       }
