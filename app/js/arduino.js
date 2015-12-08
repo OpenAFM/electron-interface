@@ -1,9 +1,3 @@
-/*
-There is a bug where we attempt to save data to session after calling endscan 
-and thus setting session to null. this has been introduced by switching to new
-parser. we need to save the final line before killing the sesh.
-*/
-
 var serialPort = require('serialport');
 var SerialPort = require('serialport').SerialPort;
 var pManager = require('../js/afm_session_manager.js');
