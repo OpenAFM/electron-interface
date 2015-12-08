@@ -1,4 +1,3 @@
-console.log('running afm-plot script');
 var n = 256;
 var arduino = require('./js/arduino.js');
 var emitter = arduino.emitter;
@@ -11,23 +10,23 @@ function initialisePlot(n, cb) {
   });
 }
 
-var log = function() {
+var plot_log = function() {
   console.log('Plot ready for data');
 }
-
-setTimeout('initialisePlot(n, log)', 1000);
+//hold it a second - bug fix
+setTimeout('initialisePlot(n, plot_log)', 1000);
 
 emitter.on('line', function(line) {
-  console.log('Plot received data: ' + line + ' Plotting now');
+  console.log('Plot received data: ' + line[0].slice(0,5) + '... Plotting now');
   drawARow(line, function() {
-    console.log('Data plotted, emittng confirmation.')
+    console.log('Data plotted, emitting confirmation.')
       emitter.emit('plotted');
   });
 });
 
 emitter.on('clearPlots', function() {
   var n = 256;
-  initialisePlot(n);
+  initialisePlot(n, plot_log);
 });
 
 (function() {
@@ -49,7 +48,7 @@ emitter.on('clearPlots', function() {
 
       contrastButton: {
         type: String,
-        value: 'GO',
+        value: 'SET',
         notify: true
       }
     },

@@ -2,10 +2,7 @@
 There is a bug where we attempt to save data to session after calling endscan 
 and thus setting session to null. this has been introduced by switching to new
 parser. we need to save the final line before killing the sesh.
-
-
 */
-
 
 var serialPort = require('serialport');
 var SerialPort = require('serialport').SerialPort;
@@ -21,6 +18,7 @@ var currentLine = '';
 var readyCount;
 var lineLength = 256;
 var STOP = true;
+var SCANNING = false;
 var receiveCount = 0;
 var scale_factor = 1;
 var scale_offset = 0;
@@ -69,7 +67,7 @@ function checkBoard(cb) {
   serialPort.list(function (err, ports) {
     // check ports on computer
     ports.forEach(function(port, i, stop) {
-      if (i == ports.length -1){
+      if (i == ports.length - 1){
         last = true;
       }
       COM = port.comName;
@@ -82,8 +80,9 @@ function checkBoard(cb) {
         cb(true);
       } else {
         if (last === true) {
-          connection.close();
-          cb(false);
+          connection.close(function (error) {
+            cb(false);
+          });
         }
       }
     });
@@ -91,18 +90,19 @@ function checkBoard(cb) {
 }
 
 function startScan(name) {
-  //clear the plots
+  //clear the plots...this clears but also need to reset something in left chart
   ['leftImage', 'rightImage', 'leftChart', 'rightChart'].forEach(function(id) {
     document.getElementById(id).innerHTML = '';
   });
   emitter.emit('clearPlots');
   
+  SCANNING = true;
   STOP = false;
   DONE = false;
   readyCount = 0;
   var session = pManager.newSession(name);
   currentSession = session;
-  console.log('Attempting initialisation.');
+  console.log('Attempting scan initialisation.');
   connection.write('GO;', function(){
     receiveData();
   });
@@ -111,10 +111,13 @@ function startScan(name) {
 function receiveData() {
   //each time new serial data is received
   connection.on('data', function(data){
-    //console.log('Serial data received: ' + data);
-    //take data as string
-    data = '' + data;
-    parseData(data);
+    if (SCANNING === true) {
+      //console.log('Serial data received: ' + data);
+      data = '' + data;
+      parseData(data);
+    } else {
+      connection.write('DONE;');
+    }
   });
 }
 
@@ -158,7 +161,7 @@ function parseData(data) {
 function readLine(line, cb) {
   //line can be: GO; RDY; DONE; or actual datas
   if (line == 'GO;') {
-    console.log('Go received');
+    console.log('Go received.');
     currentLine = '';
     connection.write('RDY;');
     readyCount += 1;
@@ -198,12 +201,12 @@ function checkFinished() {
       console.log('This was the penultimate line, preparing to terminate session');
       connection.write('DONE;');
       DONE = true;
-      cb();
     } else {
       console.log('Data processed, proceeding');
       connection.write('RDY;');
       readyCount += 1;
       console.log('Sent ready command ' + readyCount + ', waiting for new line');
+      console.log('...');
     }
   }
 }
@@ -216,7 +219,7 @@ function setContrast(scale, offset){
 
 //hack to fix reversed colours in plot - send them reversed data!
 function reverseAndScale(set, max){
-  console.log(set)
+  console.log('Received data from arduino:', set.slice(0,5));
   set.forEach(function(n, i) {
     set[i] = ((scale_factor * (max - n)) + scale_offset);
     //if some data is no good 
@@ -225,7 +228,7 @@ function reverseAndScale(set, max){
       set[i] = 666
     }
   });
-  console.log('SF: ', scale_factor, 'Of: ', scale_offset, 'Result: ', set.slice(1,5))
+  console.log('SF: ', scale_factor, 'Of: ', scale_offset, 'Result: ', set.slice(0,5))
 }
 
 function plotData(lineStr, cb){
@@ -238,7 +241,6 @@ function plotData(lineStr, cb){
   line.push(lineBack);
   console.log('Attempting to emit data to plot.');
   emitter.emit('line', line);
-  //console.log('Emitted data to plot: ' + line);
   emitter.once('plotted', function() {
     console.log('Received plotted confirmation, continuing');
     cb(); 
@@ -273,7 +275,6 @@ function endScan() {
   if (DONE == false) {
     connection.write('DONE;');
   }
-
   STOP = true;
   emitter.emit('end');
 
@@ -282,7 +283,18 @@ function endScan() {
       currentSession = null;
     });
   }
+  SCANNING = false;
+}
 
+function scanKilled() {
+  console.log('Arduino disconnected! Ending scan...')
+  connection.close( function (error) {} );
+  if (currentSession) {
+    pManager.endSession(currentSession, function() {
+      currentSession = null;
+    });
+  }
+  SCANNING = false;
 }
 
 module.exports = {
@@ -291,5 +303,6 @@ module.exports = {
   emitter : emitter,
   startScan : startScan,
   endScan : endScan,
-  setContrast: setContrast
+  setContrast: setContrast,
+  scanKilled: scanKilled
 };

@@ -32,13 +32,13 @@
             <div class="col-md-6">
               <div id="rightChart" style="margin:0 auto; width:420px"></div>
             </div>
-            <br>
-            <div id="contrast">
+            <br><br>
+            <div id="contrast" align="center">
               Scale factor:
               <input is="iron-input" prevent-invalid-input allowed-pattern="[0-9.-]" value="{{scaleFactor::input}}">
               Offset:
               <input is="iron-input" prevent-invalid-input allowed-pattern="[0-9.-]" value="{{offset::input}}">
-              <paper-button id="set-contrast" on-click="setContrast" style="background-color: green">{{contrastButton}}</paper-button>
+              <paper-button id="set-contrast" on-click="setContrast" style="background-color: white">{{contrastButton}}</paper-button>
             </div>
       </div>
   
@@ -56,72 +56,6 @@
   <script src="../js/drawMatrix.js"></script>
 
   <script src="../js/plotter.js"></script>
-
-  <!-- main control script -->
-  <!--script>
-    var n = 256;
-    function initialisePlot(n, cb) {
-      console.log('Initialising Plot');
-      initAll(n, function() {
-        if (cb) cb();
-      });
-    }
-    var log = function() {
-      console.log('Plot ready for data');
-    }
-    console.log('running afm-plot script');
-    setTimeout('initialisePlot(n, log)', 1000);
-
-    var arduino = require('./js/arduino.js');
-    var emitter = arduino.emitter;
-
-    emitter.on('line', function(line) {
-      //console.log('Plot received data: ' + line + ' Plotting now');
-      drawARow(line, function() {
-        console.log('Data plotted, emittng confirmation.')
-          emitter.emit('plotted');
-      });
-    });
-
-    emitter.on('clearPlots', function() {
-      var n = 256;
-      initialisePlot(n);
-    });
-
-    var arduino = require('./js/arduino.js');
-  
-    (function() {
-      Polymer({
-        is: 'afm-plot',
-        properties: {
-          scaleFactor: {
-            type: String,
-            value: '1',
-            notify: true
-          },
-
-          offset: {
-            type: String,
-            value: '0',
-            notify: true
-          },
-
-          contrastButton: {
-            type: String,
-            value: 'GO',
-            notify: true
-          },
-        },
-        
-        setContrast: function() {
-          arduino.contrast(this.scaleFactor, this.offset)  
-        },
-
-        ready: function() {
-        }
-      });
-    })();
-  </script-->
 
 </dom-module>
 

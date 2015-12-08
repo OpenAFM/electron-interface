@@ -37,12 +37,6 @@ var emitter = arduino.emitter;
         notify: true
       },
 
-      disabler: {
-        type: Boolean,
-        value: true,
-        notify: true
-      },
-
       scanName: {
         type: String,
         value: "Scan-Name1",
@@ -68,7 +62,6 @@ var emitter = arduino.emitter;
             that.searchButton = 'CONNECTED';
             that.serButSty = green;
             that.scaButSty = yellow;
-            that.disabler = true;
           } else {
             // if connection fails flash button to 'failed'
             //, then reset it.
@@ -93,27 +86,16 @@ var emitter = arduino.emitter;
         that.scaButSty = yellow;
       }
 
-      function scanning(that, cb) {
-          that.scanButton = 'SCANNING';
-          that.scaButSty = green;
-          cb();
-      }
-
       if (BOARD === true) {
-        if (this.scanButton == 'SCAN') {
+        if (this.scanButton == 'SCAN' && this.scaButSty == yellow) {
        // if board connected and scan not ongoing begin scan
        // and set button to green & 'scannning' temporarily
        // then set to red 'cancel' button
-
-          scanning(this, function() {
-            arduino.startScan(this.scanName, function() {
-              console.log('Beginning scan...');
-            });
-
-          });
+          this.scanButton = 'SCANNING';
+          this.scaButSty = green;
+          arduino.startScan(this.scanName)
           SCANNING = true;
           setTimeout(allowCancel, 2500, this);
-
         } else {
           // if scan ongoing then button acts as cancel,
           // ending scan session and resetting button to 'scan'
@@ -125,6 +107,7 @@ var emitter = arduino.emitter;
       }
     },
 
+    //get size from input
     sizeSelect: function(e) {
       var size = parseInt(e.detail.item.id, 10);
       console.log(size);
@@ -135,9 +118,10 @@ var emitter = arduino.emitter;
     ready: function() {
       var that = this;
       
+      //emitted by arduino.endScan() when scan over or cancelled
       emitter.on('end', function() {
         that.scanButton = 'SCAN';
-        that.scaButSty = green;
+        that.scaButSty = yellow;
       }, that);
 
       function reconnect(that) {
@@ -147,13 +131,17 @@ var emitter = arduino.emitter;
       }
  
       function isBoard(that){
-        if (that.searchButton == 'CONNECTED') {
+        if (BOARD === true) {
           arduino.checkBoard(function (board) {
             BOARD = board;
             if (BOARD === false) {
               that.searchButton = 'DISCONNECTED';
               that.serButSty = red;
               that.scaButSty = grey;
+              if (SCANNING === true) {
+                arduino.scanKilled();
+                that.scanButton = 'SCAN'
+              }
               SCANNING = false;
               setTimeout(reconnect, 2500, that);
             }
